@@ -1,0 +1,135 @@
+layer-based admin panel
+
+🔐 1. Authentication & Authorization APIs (6–8 APIs)
+POST /auth/login – Login with JWT
+
+
+POST /auth/refresh-token – Get new access token
+
+GET /auth/me – Get current user info
+
+GET /auth/roles – Get list of roles (Client, Agent, etc.)
+
+🧑‍💼 2. User Management APIs (10–15 APIs)
+GET /users – List users with filters (role, status)
+
+GET /users/:id – Get user details
+
+POST /users – Create user
+
+PUT /users/:id – Update user
+
+DELETE /users/:id – Delete user
+
+PATCH /users/:id/status – Enable/Disable user
+
+GET /users/hierarchy/:id – View user hierarchy tree
+
+GET /users/search?query= – Search user
+
+POST /users/:id/commission – Set user commission %
+
+GET /users/:id/commission – Get user commission %
+
+GET /roles/:role/users – Get users by role
+
+POST /users/:id/parent – Assign parent user
+
+GET /users/:id/wallet – Get user wallet info
+
+💰 3. Wallet & Balance Management APIs (8–10 APIs)
+POST /wallet/:id/add – Add balance
+
+POST /wallet/:id/deduct – Deduct balance
+
+GET /wallet/:id/history – Wallet transaction history
+
+POST /wallet/transfer – Transfer funds (Admin → Agent)
+
+GET /wallet/system-balance – Total system balance
+
+POST /wallet/bet-deduct – Auto deduct on bet
+
+GET /wallet/live-balances – All user balances
+
+POST /wallet/adjustment – Manual wallet correction
+
+🎲 4. Game Management APIs (6–8 APIs)
+GET /games – List games
+
+POST /games – Add game
+
+PUT /games/:id – Update game
+
+DELETE /games/:id – Delete game
+
+PATCH /games/:id/status – Enable/Disable game
+
+GET /games/categories – List by category
+
+POST /games/:id/odds – Set odds or rules
+
+GET /games/:id/live-events – Manual/APIs event list
+
+🧾 5. Betting Management APIs (8–12 APIs)
+POST /bets – Place a bet
+
+GET /bets – Bet list (filters: user, date, game)
+
+GET /bets/:id – Bet details
+
+PATCH /bets/:id/status – Settle bet (win/loss/pending/cancel)
+
+GET /bets/user/:userId – Bets by user
+
+GET /bets/game/:gameId – Bets by game
+
+POST /bets/limit – Set min/max limit
+
+POST /bets/manual-settlement – Settle manually
+
+GET /bets/statistics – Get total bet stats
+
+📊 6. Commission Distribution APIs (6–8 APIs)
+POST /commission/distribute – Distribute on loss
+
+GET /commission/user/:id – View user commission
+
+GET /commission/layers/:betId – Show commission by layers
+
+GET /commission/profit-report – Profit by role
+
+POST /commission/structure – Set % for roles
+
+GET /commission/history/:userId – Commission received
+
+📈 7. Dashboard & Analytics APIs (6–8 APIs)
+GET /dashboard/stats – All main stats
+
+GET /dashboard/users – Active vs total users
+
+GET /dashboard/bets-summary – Today/Week/Month
+
+GET /dashboard/profit-loss – Profit/Loss summary
+
+GET /dashboard/game-wise-bets – By game
+
+GET /dashboard/commission-summary – Total commissions
+
+GET /dashboard/system-balance – Wallet balance summary
+
+📚 8. Reports & Export APIs (5–8 APIs)
+GET /reports/bets
+
+GET /reports/wallet-transactions
+
+GET /reports/commissions
+
+GET /reports/users
+
+GET /reports/profit-loss
+
+GET /reports/export?type=bets&format=csv
+
+Estimated Total:
+✅ ~65 to 90 API endpoints (depending on modularity and business needs)

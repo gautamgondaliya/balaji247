@@ -1,0 +1,163 @@
+.header {
+    height: 70px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 250px;
+    /* Match with sidebar width */
+    z-index: 99;
+    transition: left 0.3s ease;
+}
+
+
+/* Adjust when sidebar is collapsed */
+
+.sidebar.collapsed+.main-content .header {
+    left: 70px;
+}
+
+.header-title h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0;
+}
+
+.header-search {
+    display: flex;
+    align-items: center;
+    background-color: #f7fafc;
+    border-radius: 4px;
+    padding: 0 10px;
+    width: 300px;
+    border: 1px solid #e2e8f0;
+}
+
+.search-input {
+    border: none;
+    background: transparent;
+    padding: 8px;
+    font-size: 0.9rem;
+    flex: 1;
+}
+
+.search-input:focus {
+    outline: none;
+}
+
+.search-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4a5568;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+.notification-icon {
+    position: relative;
+    margin-right: 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #e53e3e;
+    color: white;
+    font-size: 0.7rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-dropdown {
+    position: relative;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.profile-info:hover {
+    background-color: #f7fafc;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #1a2233;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.user-name {
+    font-weight: 500;
+    margin-right: 5px;
+}
+
+.dropdown-arrow {
+    font-size: 0.7rem;
+    color: #718096;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    padding: 10px 0;
+    z-index: 10;
+    margin-top: 5px;
+}
+
+.profile-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.profile-menu ul li {
+    padding: 0;
+}
+
+.profile-menu ul li button {
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #4a5568;
+}
+
+.profile-menu ul li button:hover {
+    background-color: #f7fafc;
+}
