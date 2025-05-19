@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './CricketPage.css';
 
 const iconMap = {
@@ -38,14 +39,8 @@ const CricketPage = () => {
     const fetchMatches = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://api.dynexbet.com/api/v1/sports/4');
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setMatches(data);
+        const response = await axios.get(`http://localhost:5000/api/cricket`);
+        setMatches(response.data);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching matches:', err);
