@@ -150,8 +150,11 @@
 }
 
 .event-detail-markets {
-    padding: 1.5rem 2rem 0 2rem;
+       padding-right: 15px;
+    padding-top: 20px;
+    padding-left: 10px;
     background-color: #f1f1f1;
+   
 }
 
 .event-title-name-all {

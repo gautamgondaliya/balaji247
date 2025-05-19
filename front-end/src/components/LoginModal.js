@@ -74,7 +74,8 @@ const LoginModal = ({ open, onClose, onLogin }) => {
       <div className="modal-container">
         {/* Left: Form */}
         <div className="form-section">
-          <img src={Logo_login} alt="logo" className="login-image-main" />
+          {/* // <img src={Logo_login} alt="logo" className="login-image-main" /> */}
+           <h1 className="rb-header-logo-main-txt-login">Balaji 247</h1>
           
           {isLoginView ? (
             // Login Form

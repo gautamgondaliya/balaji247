@@ -34,14 +34,25 @@ const CricketPage = () => {
   const [matches, setMatches] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
 
   useEffect(() => {
+    let intervalId;
+    
     const fetchMatches = async () => {
+      // Skip if we fetched within the last second (prevent overlapping requests)
+      const now = Date.now();
+      if (now - lastFetchTime < 1000) return;
+      
       try {
-        setLoading(true);
+        // Only show loading on initial fetch
+        if (!matches) setLoading(true);
+        
         const response = await axios.get(`http://localhost:5000/api/cricket`);
         setMatches(response.data);
+        setLastFetchTime(now);
         setLoading(false);
+        setError(null);
       } catch (err) {
         console.error('Error fetching matches:', err);
         setError(err.message);
@@ -49,8 +60,17 @@ const CricketPage = () => {
       }
     };
 
+    // Initial fetch
     fetchMatches();
-  }, []);
+    
+    // Set up interval for subsequent fetches
+    intervalId = setInterval(fetchMatches, 3000);
+    
+    // Clean up interval on component unmount
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [lastFetchTime, matches]);
 
   // Extract odds from the metadata if available
   const getOddsFromMetadata = (match) => {

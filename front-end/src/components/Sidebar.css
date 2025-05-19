@@ -17,6 +17,14 @@
         transition: transform 0.3s ease-in-out;
     }
 
+    .rb-header-logo-main-txt-sidebar{
+ padding: 0;
+    margin-bottom: 20px;
+    /* padding-left: 18px; */
+    font-size: 14px;
+    color: #fcd03f;
+    }
+
     .rb-sidebar-header {
         padding: 20px;
         display: flex;

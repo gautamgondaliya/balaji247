@@ -34,34 +34,51 @@ const EventDetailPage = () => {
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
 
   useEffect(() => {
+    let intervalId;
+    
     const fetchEventData = async () => {
+      // Skip if we fetched within the last second (prevent overlapping requests)
+      const now = Date.now();
+      if (now - lastFetchTime < 1000) return;
+      
       try {
-        setLoading(true);
-        console.log('Fetching event data for ID:', id);
+        // Only show loading state on first fetch
+        if (!eventData) setLoading(true);
+        
         const response = await axios.get(`http://localhost:5000/api/event-details/${id}`);
         
         const data = response.data;
-        console.log('API Response data:', data);
         if (!data.data) {
-          console.error('No data property in response:', data);
           throw new Error('Invalid response format');
         }
+        
         setEventData(data.data);
+        setLastFetchTime(now);
         setError(null);
+        setLoading(false);
       } catch (err) {
         console.error('Error fetching event data:', err);
         setError(err.message);
-      } finally {
         setLoading(false);
       }
     };
 
     if (id) {
+      // Initial fetch
       fetchEventData();
+      
+      // Set up interval for subsequent fetches
+      intervalId = setInterval(fetchEventData, 3000);
     }
-  }, [id]);
+    
+    // Clean up interval on component unmount
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [id, lastFetchTime]);
 
   // Log state changes
   useEffect(() => {

@@ -34,7 +34,8 @@ const Sidebar = ({ onCategorySelect }) => {
       <div className={`rb-sidebar-overlay${isOpen ? ' open' : ''}`} onClick={toggleSidebar}></div>
       <aside className={`rb-sidebar${isOpen ? ' open' : ''}`}>
         <div className="rb-sidebar-header">
-          <img src={Logo_Reddy_book} alt="Reddy Book" className="rb-sidebar-logo" />
+          {/* <img src={Logo_Reddy_book} alt="Reddy Book" className="rb-sidebar-logo" /> */}
+           <h1 className="rb-header-logo-main-txt-sidebar">Balaji 247</h1>
           <button className="rb-sidebar-close" onClick={toggleSidebar}>✕</button>
         </div>
         <ul className="rb-sidebar-list">
