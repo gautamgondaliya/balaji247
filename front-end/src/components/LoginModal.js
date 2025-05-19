@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './LoginModal.css';
 import Logo_login from "../assets/Images/logo.png"
 import { FaRegEye } from "react-icons/fa";
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const LoginModal = ({ open, onClose, onLogin }) => {
   const [userId, setUserId] = useState('');
@@ -13,6 +15,7 @@ const LoginModal = ({ open, onClose, onLogin }) => {
   const [registerPassword, setRegisterPassword] = useState('');
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [isPageLoad, setIsPageLoad] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Handle page load/refresh detection
   useEffect(() => {
@@ -55,13 +58,70 @@ const LoginModal = ({ open, onClose, onLogin }) => {
     }
   };
 
-  const handleLogin = () => {
-    if (onLogin) onLogin();
+  const handleLogin = async () => {
+    if (!userId || !password) {
+      toast.error('Please enter both User ID and Password');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        user_id: userId,
+        password: password
+      });
+
+      if (response.data.success) {
+        // Store token and user data in localStorage
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data.user));
+        
+        toast.success('Login successful!');
+        if (onLogin) onLogin();
+        if (onClose) onClose();
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error(error.response?.data?.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegister = () => {
-    // Implement registration logic
-    if (onLogin) onLogin(); // For now using the same callback
+  const handleRegister = async () => {
+    if (!name || !phone || !registerPassword) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    if (phone.length !== 10) {
+      toast.error('Please enter a valid 10-digit phone number');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await axios.post('http://localhost:5000/api/auth/register', {
+        name,
+        phone,
+        password: registerPassword
+      });
+
+      if (response.data.success) {
+        // Store token and user data in localStorage
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data.user));
+        
+        toast.success('Registration successful!');
+        if (onLogin) onLogin();
+        if (onClose) onClose();
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Don't show modal on page load or if not meant to be open
@@ -85,6 +145,7 @@ const LoginModal = ({ open, onClose, onLogin }) => {
                 onChange={e => setUserId(e.target.value)} 
                 placeholder="Enter User ID" 
                 className="input-field" 
+                disabled={isLoading}
               />
               <div className="password-field-container">
                 <input 
@@ -93,6 +154,7 @@ const LoginModal = ({ open, onClose, onLogin }) => {
                   onChange={e => setPassword(e.target.value)} 
                   placeholder="Enter Password*" 
                   className="input-field" 
+                  disabled={isLoading}
                 />
                 <span 
                   className="password-toggle"
@@ -102,14 +164,20 @@ const LoginModal = ({ open, onClose, onLogin }) => {
                 </span>
               </div>
               <div className="button-container">
-                <button onClick={handleLogin} className="login-button">LOGIN WITH DEMO ID</button>
-                <button onClick={handleLogin} className="login-button">LOG IN</button>
+                <button 
+                  onClick={handleLogin} 
+                  className="login-button"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Logging in...' : 'LOG IN'}
+                </button>
               </div>
               <div className="register-prompt">
                 <span>Don't have an account? </span>
                 <button 
                   onClick={() => setIsLoginView(false)} 
                   className="register-link-button"
+                  disabled={isLoading}
                 >
                   Register
                 </button>
@@ -123,6 +191,7 @@ const LoginModal = ({ open, onClose, onLogin }) => {
                 onChange={e => setName(e.target.value)} 
                 placeholder="Enter Name" 
                 className="input-field" 
+                disabled={isLoading}
               />
               <input 
                 value={phone} 
@@ -130,6 +199,7 @@ const LoginModal = ({ open, onClose, onLogin }) => {
                 placeholder="Enter Phone Number (10 digits)" 
                 className="input-field" 
                 maxLength={10}
+                disabled={isLoading}
               />
               <div className="password-field-container">
                 <input 
@@ -138,6 +208,7 @@ const LoginModal = ({ open, onClose, onLogin }) => {
                   onChange={e => setRegisterPassword(e.target.value)} 
                   placeholder="Enter Password*" 
                   className="input-field" 
+                  disabled={isLoading}
                 />
                 <span 
                   className="password-toggle"
@@ -147,27 +218,35 @@ const LoginModal = ({ open, onClose, onLogin }) => {
                 </span>
               </div>
               <div className="button-container">
-                <button onClick={() => setIsLoginView(true)} className="login-button">LOGIN</button>
-                <button onClick={handleRegister} className="login-button">REGISTER</button>
+                <button 
+                  onClick={handleRegister} 
+                  className="login-button"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Registering...' : 'REGISTER'}
+                </button>
               </div>
               <div className="login-prompt">
                 <span>Already have an account? </span>
                 <button 
                   onClick={() => setIsLoginView(true)} 
                   className="login-link-button"
+                  disabled={isLoading}
                 >
                   Login
                 </button>
               </div>
             </>
           )}
-          <button className="download-button">Download APK <span role="img" aria-label="android">🤖</span></button>
+          <button className="download-button" disabled={isLoading}>
+            Download APK <span role="img" aria-label="android">🤖</span>
+          </button>
         </div>
         {/* Right: Image */}
         <div className="image-section">
           <img src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&w=300&h=400&fit=crop" alt="login visual" className="login-image" />
         </div>
-        <button onClick={handleClose} className="close-button">&times;</button>
+        <button onClick={handleClose} className="close-button" disabled={isLoading}>&times;</button>
       </div>
     </div>
   );
