@@ -1,0 +1,423 @@
+.rb-header-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 1200;
+    background: transparent;
+}
+.rb-header-logo-main-txt{
+        padding: 0;
+    margin: 0;
+    padding-left: 18px;
+    font-size: 25px;
+}
+
+.rb-header {
+       display: flex;
+    width: -webkit-fill-available;
+    align-items: center;
+    background-color: #f5eeee !important;
+    padding: 7px 86px;
+    height: 66px;
+    position: fixed;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    z-index: 1100;
+}
+
+.rb-header-logo {
+    font-weight: bold;
+    font-size: 28px;
+    color: #d4af37;
+    margin-right: 18px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+   
+}
+.rb-header-logo img{
+        height: 40px;
+    object-fit: contain;
+}
+.rb-header-search {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.rb-header-search input {
+    width: 100%;
+    max-width: 340px;
+    min-width: 80px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 1px 4px #eee;
+    font-size: 16px;
+    transition: max-width 0.2s;
+}
+
+.rb-header-search-icon {
+    margin-left: -32px;
+    color: #888;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.rb-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 18px;
+    margin-right: 35px;
+}
+
+.rb-header-badge {
+        background: #c8002f;
+    color: #fff;
+    border-radius: 0 0 30px 30px;
+    padding: 6px 12px 10px 12px;
+    text-align: center;
+    min-width: 35px;
+}
+
+.rb-header-user {
+    background: #c8002f;
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.login-main-btn-all-app{
+      background: #222;
+                color: #fff;
+                border: 2px solid #c8002f;
+                border-radius: 20px;
+                padding: 6px 18px;
+                font-Weight: 700;
+                font-size: 15;
+                cursor: 'pointer';
+                letter-spacing: 1;
+}
+.rb-nav {
+    display: flex;
+    align-items: center;
+    background: #232323;
+    padding: 0 8px;
+    height: 44px;
+    overflow-x: auto;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.rb-nav-item {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 0 18px;
+    height: 44px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+}
+
+.rb-nav-item .rb-nav-icon {
+    font-size: 22px;
+    margin-right: 7px;
+}
+
+.rb-nav-item.active,
+.rb-nav-item:hover {
+    background: #353535;
+    color: #ffd700;
+    border-bottom: 2px solid #ffd700;
+}
+
+@media (max-width: 900px) {
+    .rb-header-logo {
+        font-size: 20px;
+    }
+
+    .rb-header-badge {
+        min-width: 48px;
+        padding: 6px 6px 12px 6px;
+    }
+
+    .rb-header-user {
+        font-size: 13px;
+        padding: 6px 8px;
+    }
+}
+
+@media (max-width: 600px) {
+    .rb-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 8px 4px;
+    }
+
+    .rb-header-logo {
+        margin-right: 0;
+        margin-bottom: 6px;
+        justify-content: center;
+    }
+
+    .rb-header-search {
+        margin-bottom: 6px;
+    }
+
+    .rb-header-right {
+        justify-content: center;
+        margin-left: 0;
+    }
+
+    .rb-nav {
+        padding: 0 2px;
+    }
+
+    .rb-nav-item {
+        padding: 0 10px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 1000px) {
+    .rb-header {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: #181818 !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 0 !important;
+        height: auto !important;
+        box-shadow: none !important;
+        z-index: 1100;
+    }
+
+    .rb-header-logo {
+        font-size: 20px !important;
+        margin: 8px 0 0 12px !important;
+         color: #d4af37 !important;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .rb-header-right {
+        margin: 7px 12px 0 0 !important;
+        gap: 8px !important;
+        justify-content: flex-end !important;
+    }
+
+    
+    .rb-header-user {
+        font-size: 13px !important;
+        padding: 4px 8px !important;
+        min-width: 48px !important;
+        border-radius: 8px !important;
+    }
+}
+
+.main-right-side-header {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.main-right-side-balance-and-btn {
+    display: flex;
+    gap: 20px;
+}
+.rd-balance-badge{
+    font-size: 14px;
+    color: black;
+    font-weight: 900;
+
+   
+}
+@media(min-width:1000px) {
+    .rb-header-search-phone {
+        display: none;
+    }
+}
+
+.rb-header-search-phone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.rb-header-search-phone input {
+    width: 100%;
+    max-width: 340px;
+    min-width: 80px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 1px 4px #eee;
+    font-size: 16px;
+    transition: max-width 0.2s;
+}
+
+/* // responsive header */
+
+.rb-header-main{
+        display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    width: -webkit-fill-available;
+}
+.rb-header-left{
+    display: flex;
+    flex-direction: row;
+}
+
+@media (max-width:1000px){
+    .rb-header-search{
+   position: fixed !important;
+    top: 59px;
+    width: 96%;
+    /* padding: 0; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    z-index: 99;
+    /* margin: 8px -4px; */
+    left: 0;
+    right: 0;
+    }
+
+    .rb-header-main{
+            display: flex;
+    align-items: start;
+    height: 100px;
+    }
+
+    .rb-header-search input {
+    width: 100%;
+    max-width: 1000px;
+    min-width: 80px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+   
+    font-size: 16px;
+    transition: max-width 0.2s;
+}
+
+.rb-header-badge{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: none;
+}
+
+.rd-title-badge{
+    font-size: 14px;
+    font-weight: 700;
+}
+.rd-balance-badge{
+    font-size: 14px;
+    font-weight: 900;
+    color: white;
+
+   
+}
+
+.rd-title-badge{
+    font-size: 12px;
+
+}
+.rd-balance-badge{
+    font-size: 12px;
+}
+
+}
+
+@media(max-width:700px){
+    .rb-header-logo img {
+    height: 30px;
+    object-fit: contain;
+}
+.rb-header-search {
+    position: fixed !important;
+    top: 59px;
+    width: 95%;
+    /* padding: 0; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    z-index: 99;
+    /* margin: 8px -4px; */
+    left: 0;
+    right: 0;
+}
+}
+
+@media(max-width:450px){
+    .rb-header-search {
+  
+    width: 92%;
+    
+}
+.login-main-btn-all-app{
+    
+    font-size: 13;
+}
+.rd-balance-badge {
+    font-size: 13px;
+}
+}
+
+@media(max-width:370px){
+    .rb-header-search {
+  
+    width: 91%;
+    
+}
+}
+
+@media(max-width:350px){
+    .rb-header-search {
+    width: 90%;
+    }
+
+  .rb-header-badge {
+    min-width: 48px;
+    padding: 1px 3px 8px 3px;
+}
+.rb-header-user {
+    font-size: 10px !important;
+    padding: 7px 6px !important;
+    min-width: 30px !important;
+    border-radius: 8px !important;
+}
+.rd-balance-badge {
+    font-size: 13px;
+}
+}
+
+@media(max-width:300px){
+    .rb-header-search {
+  
+    width: 90%;
+    
+}
+}

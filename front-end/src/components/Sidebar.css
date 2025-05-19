@@ -1,0 +1,170 @@
+    .rb-sidebar {
+        width: 220px;
+        background: #ffffff;
+        border-right: 1px solid #e0e0e0;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 900;
+        padding-top: 30px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        /* Only show vertical scrollbar when hovering */
+        scrollbar-width: thin;
+        scrollbar-color: #e0e0e0 #f3f8fa;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .rb-sidebar-header {
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e0e0e0;
+        background: #ffffff;
+    }
+
+    .rb-sidebar-logo {
+        height: 40px;
+        object-fit: contain;
+    }
+
+    .rb-sidebar-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+        padding: 5px;
+    }
+
+    .rb-sidebar:hover {
+        overflow-y: auto;
+    }
+
+    .rb-sidebar-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .rb-sidebar-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f0f0f0;
+        cursor: pointer;
+        font-size: 14px;
+        color: #222;
+        background: none;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .rb-sidebar-item .rb-sidebar-icon {
+        margin-right: 14px;
+        font-size: 22px;
+    }
+
+    .rb-sidebar-item.active,
+    .rb-sidebar-item:hover {
+        background: #fff6f0;
+        color: #d94c00;
+        font-weight: 600;
+    }
+
+    /* Hide scrollbar by default, show on hover (for webkit browsers) */
+
+    .rb-sidebar {
+        scrollbar-width: thin;
+        scrollbar-color: #e0e0e0 #f3f8fa;
+    }
+
+    .rb-sidebar::-webkit-scrollbar {
+        width: 8px;
+        background: #f3f8fa;
+    }
+
+    .rb-sidebar::-webkit-scrollbar-thumb {
+        background: #e0e0e0;
+        border-radius: 4px;
+    }
+
+    .rb-sidebar-toggle {
+        position: fixed;
+        right: 0px;
+        z-index: 1000;
+        background: #ffffff;
+        color: black;
+        border: none;
+        /* border-radius: 5px; */
+        width: 48px;
+        height: 37px;
+        font-size: 20px;
+        cursor: pointer;
+        transition: background 0.3s;
+        display: none;
+    }
+
+    .rb-sidebar-toggle:hover {
+        background: #d3d3d3;
+    }
+
+    .rb-sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1999;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .rb-sidebar-overlay.open {
+        opacity: 1;
+        display: block;
+    }
+
+    @media (max-width: 1000px) {
+        .rb-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .rb-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .rb-sidebar-toggle {
+            display: block;
+            top: 120px;
+            position: fixed !important;
+            right: 0px;
+        }
+
+        .rb-sidebar {
+            width: 320px;
+            background: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 2000;
+            padding-top: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            /* Only show vertical scrollbar when hovering */
+            scrollbar-width: thin;
+            scrollbar-color: #e0e0e0 #f3f8fa;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        body.sidebar-open {
+            overflow: hidden;
+        }
+    }

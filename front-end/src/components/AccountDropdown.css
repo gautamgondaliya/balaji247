@@ -1,0 +1,212 @@
+.account-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 250px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    overflow: hidden;
+    border: 1px solid #c8002f;
+    font-family: inherit;
+}
+
+.account-dropdown-header {
+    background: #c8002f;
+    color: #fff;
+    padding: 12px 0;
+    text-align: center;
+    font-weight: 700;
+    font-size: 16px;
+    position: relative;
+    letter-spacing: 0.5px;
+}
+
+.account-dropdown-close {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.account-dropdown-toggle-row {
+    border-bottom: 1px solid #eee;
+    background: #fafafa;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.account-dropdown-toggle-label {
+    flex: 1;
+}
+
+.account-dropdown-toggle-switch {
+    display: inline-block;
+    position: relative;
+    width: 32px;
+    height: 16px;
+}
+
+.account-dropdown-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.account-dropdown-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ccc;
+    border-radius: 16px;
+    transition: .2s;
+}
+
+.account-dropdown-toggle-switch input:checked+.account-dropdown-toggle-slider {
+    background: #c8002f;
+}
+
+.account-dropdown-toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    transition: .2s;
+    box-shadow: 0 1px 4px #aaa;
+}
+
+.account-dropdown-toggle-switch input:checked~.account-dropdown-toggle-knob {
+    left: 16px;
+}
+
+.account-dropdown-balance {
+    padding: 10px 0 0 0;
+    text-align: center;
+}
+
+.account-dropdown-balance-label {
+    font-weight: 600;
+    color: #888;
+    font-size: 12px;
+}
+
+.account-dropdown-balance-value {
+    font-size: 17px;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.1;
+}
+
+.account-dropdown-balance-bonus {
+    font-size: 11px;
+    color: #888;
+}
+
+.account-dropdown-menu {
+    margin: 0;
+}
+
+.account-dropdown-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 7px 14px;
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    border-left: 4px solid transparent;
+    transition: background 0.2s, color 0.2s;
+    min-height: 20px;
+}
+
+.account-dropdown-menu-item.active,
+.account-dropdown-menu-item:hover {
+    background: #fbeee7;
+    color: #c8002f;
+    font-weight: 600;
+    border-left: 4px solid #ffc107;
+}
+
+.account-dropdown-menu-icon {
+    margin-right: 10px;
+    font-size: 15px;
+    width: 18px;
+    display: inline-flex;
+    justify-content: center;
+    color: #888;
+}
+
+.account-dropdown-menu-item.active .account-dropdown-menu-icon,
+.account-dropdown-menu-item:hover .account-dropdown-menu-icon {
+    color: #c8002f;
+}
+
+.account-dropdown-signout {
+    width: 100%;
+    background: linear-gradient(90deg, #ff6600 0%, #ff9900 100%);
+    color: #fff;
+    border: none;
+    padding: 10px 0;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 0;
+    letter-spacing: 1px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+}
+
+.main-balance-part {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.exposure-balance-main {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.account-dropdown-profile {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+
+/* When profile is shown, adjust the dropdown width */
+
+.account-dropdown-profile+.account-dropdown-signout {
+    margin-top: 0;
+}
+
+.account-dropdown-profile .profile-overview {
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+.account-dropdown-profile .detail-row {
+    margin: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+}

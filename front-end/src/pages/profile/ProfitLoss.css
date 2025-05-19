@@ -1,0 +1,202 @@
+.profit-loss-page {
+    background-color: #f5f5f5;
+    width: 100%;
+}
+
+.profit-loss-header {
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profit-loss-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.total-pl {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.profit-loss-content {
+    padding: 15px;
+    background-color: white;
+}
+
+.search-filters {
+    display: flex;
+    gap: 10px;
+    justify-content: start;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+
+.date-filters {
+    display: flex;
+    gap: 15px;
+    flex-direction: column;
+}
+
+.date-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.date-input-group label {
+    font-size: 14px;
+    color: #555;
+    text-align: start;
+}
+
+.date-input {
+    position: relative;
+    width: 180px;
+}
+
+.date-input input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    outline: none;
+    border-radius: 3px;
+}
+
+.profit-loss-btn-type {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+
+.type-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: start;
+}
+
+.type-filter label {
+    font-size: 14px;
+    color: #555;
+}
+
+.type-filter select {
+    width: 180px;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    outline: none;
+    border-radius: 3px;
+    background-color: white;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+}
+
+.submit-btn {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 9px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-left: auto;
+}
+
+.profit-loss-results {
+    min-height: 200px;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    background-color: #f9f9f9;
+}
+
+.no-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    color: #666;
+    font-size: 14px;
+}
+
+.no-data-cell {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 14px;
+    background-color: #f9f9f9;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    color: #666;
+}
+
+.profit-loss-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.profit-loss-table th,
+.profit-loss-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.profit-loss-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    color: #333;
+}
+
+.profit-loss-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.profit-loss-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+@media (max-width: 768px) {
+    .profit-loss-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .search-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .date-filters {
+        flex-direction: column;
+    }
+    .profit-loss-btn-type {
+        flex-direction: column;
+    }
+    .submit-btn {
+        margin-left: 0;
+        width: 100%;
+    }
+    .date-input,
+    .type-filter select {
+        width: 100%;
+    }
+    .date-input input {
+        width: 94%;
+    }
+}

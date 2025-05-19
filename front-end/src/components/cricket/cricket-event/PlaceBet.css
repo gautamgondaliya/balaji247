@@ -1,0 +1,248 @@
+.event-place-bet {
+    margin-top: 20px;
+}
+
+.mobile-bet-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.mobile-bet-container {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    z-index: 10000;
+    animation: slideUp 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.mobile-bet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.mobile-bet-title {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.mobile-bet-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+}
+
+.event-place-bet-title {
+    font-weight: bold;
+    padding: 10px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+
+.event-place-bet-content {
+    padding: 10px;
+}
+
+.place-bet-card {
+    background: #ffcccb;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.bet-info-card {
+    background: #fff;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid #ffb6b6;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.bet-info-type {
+    font-weight: bold;
+}
+
+.bet-info-type.no {
+    color: #d32f2f;
+}
+
+.bet-info-type.yes {
+    color: #1976d2;
+}
+
+.bet-info-stake {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stake-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.place-bet-stake-btn {
+    padding: 6px;
+    background: white;
+    border: 1px solid #ff9999;
+    border-radius: 3px;
+    color: green;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.place-bet-stake-btn:hover {
+    background: #f9f9f9;
+}
+
+.action-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.action-btn {
+    padding: 8px;
+    border: none;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.action-btn.min {
+    background: #c3003c;
+}
+
+.action-btn.max {
+    background: #3c0050;
+}
+
+.action-btn.edit {
+    background: green;
+}
+
+.action-btn.clear {
+    background: red;
+}
+
+.bet-limits-info {
+    font-size: 12px;
+    padding: 5px;
+    text-align: center;
+    margin-bottom: 8px;
+    color: #666;
+}
+
+.final-buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-top: 8px;
+}
+
+.final-btn {
+    padding: 12px;
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.final-btn.cancel {
+    background: #ff9999;
+}
+
+.final-btn.place {
+    background: green;
+}
+
+.event-bet-placeholder {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+@media(max-width:1000px) {
+    .event-place-bet {
+        display: none;
+    }
+    .mobile-bet-overlay.show {
+        display: block;
+    }
+    .mobile-bet-container.show {
+        display: block;
+    }
+    .place-bet-card {
+        background: white;
+        padding: 15px;
+        border-radius: 0;
+    }
+    .bet-info-card {
+        background: #f8f8f8;
+        border: none;
+        padding: 15px;
+    }
+    .place-bet-stake-btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+    .action-btn {
+        padding: 12px;
+        font-size: 12px;
+    }
+    .final-buttons-grid {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        padding: 10px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .final-btn {
+        padding: 15px;
+        font-size: 16px;
+    }
+}
