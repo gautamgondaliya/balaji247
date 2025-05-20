@@ -174,8 +174,25 @@ const EventDetailPage = () => {
   
   // Helper to check if "BALL RUNNING" should be displayed
   const isBallRunning = (market) => {
-    return market.sn === "BALL RUNNING" || market.msg === "BALL RUNNING";
+    return market.sn === "BALL RUNNING" || market.msg === "BALL RUNNING" || market.sn === "SUSPEND";
   };
+
+  // Helper to render BALL RUNNING indicator consistently across all market types
+  const renderBallRunning = () => (
+    <div style={{ 
+      background: '#e91e63', 
+      color: '#fff', 
+      fontWeight: 700, 
+      fontSize: 22, 
+      padding: '12px 0', 
+      width: '100%', 
+      textAlign: 'center',
+      borderRadius: 0,
+      letterSpacing: '1px'
+    }}>
+      BALL RUNNING
+    </div>
+  );
 
   // Group markets by type for display - Legacy function, now replaced by processApiData
   // This is kept for backward compatibility only
@@ -343,20 +360,9 @@ const EventDetailPage = () => {
           </div>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
             <div style={{ width: 180, fontWeight: 600, fontSize: 20, marginBottom: 8 }}>{market.mn}</div>
-            <div style={{ display: 'flex', minWidth: 120 }}>
+            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
               {isBallRunning(market) ? (
-                <div style={{ 
-                  background: '#dd356e', 
-                  color: '#fff', 
-                  fontWeight: 700, 
-                  fontSize: 22, 
-                  padding: '10px 24px', 
-                  borderRadius: 6, 
-                  width: 170, 
-                  textAlign: 'center' 
-                }}>
-                  BALL RUNNING
-                </div>
+                renderBallRunning()
               ) : (
                 <>
                   {/* NO odds */}
@@ -419,45 +425,36 @@ const EventDetailPage = () => {
           </div>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
             <div style={{ width: 180, fontWeight: 600, fontSize: 20, marginBottom: 8 }}>{market.mn}</div>
-            {isBallRunning(market) ? (
-              <div style={{ 
-                background: '#dd356e', 
-                color: '#fff', 
-                fontWeight: 700, 
-                fontSize: 22, 
-                padding: '10px 24px', 
-                borderRadius: 6, 
-                width: 170, 
-                textAlign: 'center' 
-              }}>
-                BALL RUNNING
-              </div>
-            ) : (
-              <div style={{ display: 'flex', minWidth: 120 }}>
-                {/* NO odds */}
-                <div style={{ background: '#ffcdd2', color: '#c3003c', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginRight: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
-                  onClick={() => {
-                    setSelectedMarketIndex(market.mi);
-                    setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                    setStake('');
-                  }}
-                >
-                  <div>{market.rn || '-'}</div>
-                  <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
+              {isBallRunning(market) ? (
+                renderBallRunning()
+              ) : (
+                <div style={{ display: 'flex', minWidth: 120 }}>
+                  {/* NO odds */}
+                  <div style={{ background: '#ffcdd2', color: '#c3003c', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginRight: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                    onClick={() => {
+                      setSelectedMarketIndex(market.mi);
+                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                      setStake('');
+                    }}
+                  >
+                    <div>{market.rn || '-'}</div>
+                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                  </div>
+                  {/* YES odds */}
+                  <div style={{ background: '#bbdefb', color: '#1976d2', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginLeft: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                    onClick={() => {
+                      setSelectedMarketIndex(market.mi);
+                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                      setStake('');
+                    }}
+                  >
+                    <div>{market.ry || '-'}</div>
+                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                  </div>
                 </div>
-                {/* YES odds */}
-                <div style={{ background: '#bbdefb', color: '#1976d2', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginLeft: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
-                  onClick={() => {
-                    setSelectedMarketIndex(market.mi);
-                    setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                    setStake('');
-                  }}
-                >
-                  <div>{market.ry || '-'}</div>
-                  <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       ))}
@@ -488,45 +485,36 @@ const EventDetailPage = () => {
           </div>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
             <div style={{ width: 180, fontWeight: 600, fontSize: 20, marginBottom: 8 }}>{market.mn}</div>
-            {isBallRunning(market) ? (
-              <div style={{ 
-                background: '#dd356e', 
-                color: '#fff', 
-                fontWeight: 700, 
-                fontSize: 22, 
-                padding: '10px 24px', 
-                borderRadius: 6, 
-                width: 170, 
-                textAlign: 'center' 
-              }}>
-                BALL RUNNING
-              </div>
-            ) : (
-              <div style={{ display: 'flex', minWidth: 120 }}>
-                {/* NO odds */}
-                <div style={{ background: '#ffcdd2', color: '#c3003c', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginRight: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
-                  onClick={() => {
-                    setSelectedMarketIndex(market.mi);
-                    setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                    setStake('');
-                  }}
-                >
-                  <div>{market.rn || '-'}</div>
-                  <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
+              {isBallRunning(market) ? (
+                renderBallRunning()
+              ) : (
+                <div style={{ display: 'flex', minWidth: 120 }}>
+                  {/* NO odds */}
+                  <div style={{ background: '#ffcdd2', color: '#c3003c', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginRight: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                    onClick={() => {
+                      setSelectedMarketIndex(market.mi);
+                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                      setStake('');
+                    }}
+                  >
+                    <div>{market.rn || '-'}</div>
+                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                  </div>
+                  {/* YES odds */}
+                  <div style={{ background: '#bbdefb', color: '#1976d2', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginLeft: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                    onClick={() => {
+                      setSelectedMarketIndex(market.mi);
+                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                      setStake('');
+                    }}
+                  >
+                    <div>{market.ry || '-'}</div>
+                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                  </div>
                 </div>
-                {/* YES odds */}
-                <div style={{ background: '#bbdefb', color: '#1976d2', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginLeft: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
-                  onClick={() => {
-                    setSelectedMarketIndex(market.mi);
-                    setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                    setStake('');
-                  }}
-                >
-                  <div>{market.ry || '-'}</div>
-                  <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
             {/* Max Bet/Market info */}
             <div style={{ marginLeft: 32, color: '#222', fontSize: 15, fontWeight: 400 }}>
               <div>Max Bet: {market.mins || 100}</div>
@@ -649,73 +637,64 @@ const EventDetailPage = () => {
           </div>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
             <div style={{ width: 280, fontWeight: 600, fontSize: 16, marginBottom: 8 }}>{market.mn}</div>
-            {isBallRunning(market) ? (
-              <div style={{ 
-                background: '#dd356e', 
-                color: '#fff', 
-                fontWeight: 700, 
-                fontSize: 22, 
-                padding: '10px 24px', 
-                borderRadius: 6, 
-                width: 170, 
-                textAlign: 'center' 
-              }}>
-                BALL RUNNING
-              </div>
-            ) : (
-              <div style={{ display: 'flex', minWidth: 120 }}>
-                {/* NO odds */}
-                <div style={{ 
-                  background: '#ffcdd2', 
-                  color: '#c3003c', 
-                  fontWeight: 700, 
-                  fontSize: 20, 
-                  padding: '10px 15px', 
-                  borderRadius: 6, 
-                  marginRight: 2, 
-                  textAlign: 'center', 
-                  minWidth: 60,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}
-                  onClick={() => {
-                    setSelectedMarketIndex(market.mi);
-                    setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                    setStake('');
+            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
+              {isBallRunning(market) ? (
+                renderBallRunning()
+              ) : (
+                <div style={{ display: 'flex', minWidth: 120 }}>
+                  {/* NO odds */}
+                  <div style={{ 
+                    background: '#ffcdd2', 
+                    color: '#c3003c', 
+                    fontWeight: 700, 
+                    fontSize: 20, 
+                    padding: '10px 15px', 
+                    borderRadius: 6, 
+                    marginRight: 2, 
+                    textAlign: 'center', 
+                    minWidth: 60,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
                   }}
-                >
-                  <div>{market.rn || '-'}</div>
-                  <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
-                </div>
-                {/* YES odds */}
-                <div style={{ 
-                  background: '#bbdefb', 
-                  color: '#1976d2', 
-                  fontWeight: 700, 
-                  fontSize: 20, 
-                  padding: '10px 15px', 
-                  borderRadius: 6, 
-                  marginLeft: 2, 
-                  textAlign: 'center', 
-                  minWidth: 60,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}
-                  onClick={() => {
-                    setSelectedMarketIndex(market.mi);
-                    setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                    setStake('');
+                    onClick={() => {
+                      setSelectedMarketIndex(market.mi);
+                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                      setStake('');
+                    }}
+                  >
+                    <div>{market.rn || '-'}</div>
+                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                  </div>
+                  {/* YES odds */}
+                  <div style={{ 
+                    background: '#bbdefb', 
+                    color: '#1976d2', 
+                    fontWeight: 700, 
+                    fontSize: 20, 
+                    padding: '10px 15px', 
+                    borderRadius: 6, 
+                    marginLeft: 2, 
+                    textAlign: 'center', 
+                    minWidth: 60,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
                   }}
-                >
-                  <div>{market.ry || '-'}</div>
-                  <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                    onClick={() => {
+                      setSelectedMarketIndex(market.mi);
+                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                      setStake('');
+                    }}
+                  >
+                    <div>{market.ry || '-'}</div>
+                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
             {/* Max Bet/Market info */}
             <div style={{ marginLeft: 32, color: '#222', fontSize: 15, fontWeight: 400 }}>
               <div>Max Bet: {market.mins || 100}</div>
@@ -751,73 +730,64 @@ const EventDetailPage = () => {
           </div>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
             <div style={{ width: 280, fontWeight: 600, fontSize: 16, marginBottom: 8 }}>{market.mn}</div>
-            {isBallRunning(market) ? (
-              <div style={{ 
-                background: '#dd356e', 
-                color: '#fff', 
-                fontWeight: 700, 
-                fontSize: 22, 
-                padding: '10px 24px', 
-                borderRadius: 6, 
-                width: 170, 
-                textAlign: 'center' 
-              }}>
-                BALL RUNNING
-              </div>
-            ) : (
-              <div style={{ display: 'flex', minWidth: 120 }}>
-                {/* NO odds */}
-                <div style={{ 
-                  background: '#ffcdd2', 
-                  color: '#c3003c', 
-                  fontWeight: 700, 
-                  fontSize: 20, 
-                  padding: '10px 15px', 
-                  borderRadius: 6, 
-                  marginRight: 2, 
-                  textAlign: 'center', 
-                  minWidth: 60,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}
-                  onClick={() => {
-                    setSelectedMarketIndex(market.mi);
-                    setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                    setStake('');
+            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
+              {isBallRunning(market) ? (
+                renderBallRunning()
+              ) : (
+                <div style={{ display: 'flex', minWidth: 120 }}>
+                  {/* NO odds */}
+                  <div style={{ 
+                    background: '#ffcdd2', 
+                    color: '#c3003c', 
+                    fontWeight: 700, 
+                    fontSize: 20, 
+                    padding: '10px 15px', 
+                    borderRadius: 6, 
+                    marginRight: 2, 
+                    textAlign: 'center', 
+                    minWidth: 60,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
                   }}
-                >
-                  <div>{market.rn || '-'}</div>
-                  <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
-                </div>
-                {/* YES odds */}
-                <div style={{ 
-                  background: '#bbdefb', 
-                  color: '#1976d2', 
-                  fontWeight: 700, 
-                  fontSize: 20, 
-                  padding: '10px 15px', 
-                  borderRadius: 6, 
-                  marginLeft: 2, 
-                  textAlign: 'center', 
-                  minWidth: 60,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}
-                  onClick={() => {
-                    setSelectedMarketIndex(market.mi);
-                    setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                    setStake('');
+                    onClick={() => {
+                      setSelectedMarketIndex(market.mi);
+                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                      setStake('');
+                    }}
+                  >
+                    <div>{market.rn || '-'}</div>
+                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                  </div>
+                  {/* YES odds */}
+                  <div style={{ 
+                    background: '#bbdefb', 
+                    color: '#1976d2', 
+                    fontWeight: 700, 
+                    fontSize: 20, 
+                    padding: '10px 15px', 
+                    borderRadius: 6, 
+                    marginLeft: 2, 
+                    textAlign: 'center', 
+                    minWidth: 60,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
                   }}
-                >
-                  <div>{market.ry || '-'}</div>
-                  <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                    onClick={() => {
+                      setSelectedMarketIndex(market.mi);
+                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                      setStake('');
+                    }}
+                  >
+                    <div>{market.ry || '-'}</div>
+                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
             {/* Max Bet/Market info */}
             <div style={{ marginLeft: 32, color: '#222', fontSize: 15, fontWeight: 400 }}>
               <div>Max Bet: {market.mins || 100}</div>
@@ -929,19 +899,7 @@ const EventDetailPage = () => {
                 </table>
                ) : (
                 isBallRunning(market) ? (
-                  <div style={{ 
-                    background: '#dd356e', 
-                    color: '#fff', 
-                    fontWeight: 700, 
-                    fontSize: 22, 
-                    padding: '10px 24px', 
-                    borderRadius: 6, 
-                    width: 170, 
-                    textAlign: 'center',
-                    margin: '10px 0'
-                  }}>
-                    BALL RUNNING
-                  </div>
+                  renderBallRunning()
                 ) : (
                   <div style={{ display: 'flex', minWidth: 120, margin: '10px 0' }}>
                     {/* NO odds */}
