@@ -99,6 +99,9 @@
 
 .bet-info-type {
     font-weight: bold;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
 }
 
 .bet-info-type.no {
@@ -107,6 +110,14 @@
 
 .bet-info-type.yes {
     color: #1976d2;
+}
+
+.bet-info-type.back {
+    color: #1976d2;
+}
+
+.bet-info-type.lay {
+    color: #d32f2f;
 }
 
 .bet-info-stake {

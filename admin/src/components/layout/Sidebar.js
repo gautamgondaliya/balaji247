@@ -66,6 +66,7 @@ const Sidebar = () => {
       icon: '🧾',
       subItems: [
         { title: 'All Bets', path: '/bets' },
+        { title: 'Betting Data', path: '/bets/data' },
       ]
     },
     { 

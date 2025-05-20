@@ -1,12 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './PlaceBet.css';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, stake, setSelectedMarketIndex }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1000);
+
+  // Check for mobile device
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1000);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   useEffect(() => {
-    if (selectedBet) {
+    if (selectedBet && isMobile) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
@@ -14,7 +25,7 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [selectedBet]);
+  }, [selectedBet, isMobile]);
 
   const handlePlaceBet = () => {
     // Check if stake is valid
@@ -45,11 +56,35 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
     setSelectedMarketIndex(null);
   };
 
+  // Get bet label based on the type
+  const getBetTypeLabel = () => {
+    if (!selectedBet) return '';
+    
+    const { odd } = selectedBet;
+    if (odd.type === 'yes') return '- YES:';
+    if (odd.type === 'no') return '- NO:';
+    if (odd.type === 'back') return '- BACK:';
+    if (odd.type === 'lay') return '- LAY:';
+    return `- ${odd.type.toUpperCase()}:`;
+  };
+
+  // Get the market name to display
+  const getMarketName = () => {
+    if (!selectedBet) return '';
+    return selectedBet.market.mn || selectedBet.market.name || '';
+  };
+
+  // Get the selected price to display
+  const getSelectedPrice = () => {
+    if (!selectedBet) return '';
+    return selectedBet.odd.price || '-';
+  };
+
   const betContent = (
     <>
       <div className="bet-info-card">
         <div className={`bet-info-type ${selectedBet?.odd.type}`}>
-          {selectedBet?.market.name} - {selectedBet?.odd.type.toUpperCase()}: {selectedBet?.odd.value}
+          {getMarketName()} {getBetTypeLabel()} {getSelectedPrice()}
         </div>
         <div className="bet-info-stake">
           {stake}
@@ -86,7 +121,7 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         >+ 20000</button>
         <button
           className="place-bet-stake-btn"
-          onClick={() => setStake(9189484)}
+          onClick={() => setStake(prev => Number(prev || 0) + 30000)}
         >+ 30000</button>
         <button
           className="place-bet-stake-btn"

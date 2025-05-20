@@ -12,6 +12,7 @@ import Games from './pages/games/Games';
 import GameDetail from './pages/games/GameDetail';
 import CricketDashboard from './pages/games/CricketDashboard';
 import AllBets from './pages/bets/AllBets';
+import BettingDataPage from './pages/BettingDataPage';
 import Users from './pages/users/Users';
 import UserDetail from './pages/users/UserDetail';
 import UserCommissions from './pages/users/UserCommissions';
@@ -71,7 +72,7 @@ function App() {
           
           {/* Betting management routes */}
           <Route path="/bets" element={<AllBets />} />
-         
+          <Route path="/bets/data" element={<BettingDataPage />} />
           
           {/* Commission management routes */}
           <Route path="/commission/structure" element={<div className="page-container"><h1 className="page-title">Commission Structure</h1></div>} />
