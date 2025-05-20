@@ -125,6 +125,26 @@
     font-weight: bold;
 }
 
+.wallet-info {
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ffb6b6;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.wallet-balance {
+    color: #1976d2;
+    font-weight: bold;
+}
+
+.wallet-exposure {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
 .stake-buttons-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

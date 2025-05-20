@@ -2,9 +2,25 @@ import React, { useEffect, useState } from 'react';
 import './PlaceBet.css';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api'; // Adjust with your API URL
+
+// Setup axios with authentication interceptor
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json'
+    }
+  };
+};
 
 const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, stake, setSelectedMarketIndex }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1000);
+  const [walletDetails, setWalletDetails] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Check for mobile device
   useEffect(() => {
@@ -27,7 +43,62 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
     };
   }, [selectedBet, isMobile]);
 
-  const handlePlaceBet = () => {
+  // Fetch wallet details on component mount
+  useEffect(() => {
+    fetchWalletDetails();
+  }, []);
+
+  // Fetch wallet details from backend
+  const fetchWalletDetails = async () => {
+    try {
+      // Get user info from localStorage
+      const userString = localStorage.getItem('user');
+      if (!userString) {
+        toast.error('User not logged in', {
+          position: "top-right",
+          autoClose: 3000
+        });
+        return;
+      }
+      
+      const user = JSON.parse(userString);
+      const userId = user.user_id;
+      
+      if (!userId) {
+        toast.error('User ID not found', {
+          position: "top-right",
+          autoClose: 3000
+        });
+        return;
+      }
+      
+      const response = await axios.get(`${BASE_URL}/wallet/details/${userId}`, getAuthHeaders());
+      
+      if (response.data.success) {
+        setWalletDetails(response.data.data.wallet);
+      } else {
+        toast.error(response.data.message || 'Failed to fetch wallet details', {
+          position: "top-right",
+          autoClose: 3000
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching wallet details:', error);
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again', {
+          position: "top-right",
+          autoClose: 3000
+        });
+      } else {
+        toast.error('Failed to fetch wallet details', {
+          position: "top-right", 
+          autoClose: 3000
+        });
+      }
+    }
+  };
+
+  const handlePlaceBet = async () => {
     // Check if stake is valid
     if (!stake || Number(stake) < 100) {
       toast.error('Please enter a valid stake amount (min: 100)', {
@@ -36,18 +107,96 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
       });
       return;
     }
-    
-    // Show success message
-    toast.success('Bet placed successfully!', {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true
-    });
-    
-    handleClose();
+
+    if (!selectedBet) {
+      toast.error('No bet selected', {
+        position: "top-right",
+        autoClose: 3000
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Get user info from localStorage
+      const userString = localStorage.getItem('user');
+      
+      if (!userString) {
+        toast.error('User not logged in', {
+          position: "top-right",
+          autoClose: 3000
+        });
+        setLoading(false);
+        return;
+      }
+      
+      const user = JSON.parse(userString);
+      const userId = user.user_id;
+      
+      if (!userId) {
+        toast.error('User ID not found', {
+          position: "top-right",
+          autoClose: 3000
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Prepare bet data
+      const betData = {
+        user_id: userId,
+        amount: Number(stake),
+        bet_type: selectedBet.odd.type, // 'back', 'lay', 'yes', or 'no'
+        odds: selectedBet.odd.price,
+        market_id: selectedBet.market.id || selectedBet.market.mn,
+        bet_category: selectedBet.market.category || 'cricket'
+      };
+
+      // Send request to place bet with auth headers
+      const response = await axios.post(`${BASE_URL}/betting/place`, betData, getAuthHeaders());
+      
+      if (response.data.success) {
+        toast.success(response.data.message || 'Bet placed successfully!', {
+          position: "top-right",
+          autoClose: 3000
+        });
+        
+        // Update wallet details
+        if (response.data.data && response.data.data.wallet) {
+          setWalletDetails(prevState => ({
+            ...prevState,
+            current_balance: response.data.data.wallet.current_balance,
+            current_exposure: response.data.data.wallet.current_exposure
+          }));
+        } else {
+          // Fetch fresh wallet details
+          await fetchWalletDetails();
+        }
+        
+        handleClose();
+      } else {
+        toast.error(response.data.message || 'Failed to place bet', {
+          position: "top-right",
+          autoClose: 3000
+        });
+      }
+    } catch (error) {
+      console.error('Error placing bet:', error);
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again', {
+          position: "top-right",
+          autoClose: 3000
+        });
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to place bet', {
+          position: "top-right",
+          autoClose: 3000
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
   
   const handleClose = () => {
@@ -91,6 +240,13 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         </div>
       </div>
       
+      {walletDetails && (
+        <div className="wallet-info">
+          <div className="wallet-balance">Balance: {walletDetails.current_balance}</div>
+          <div className="wallet-exposure">Exposure: {walletDetails.current_exposure}</div>
+        </div>
+      )}
+      
       <div className="stake-buttons-grid">
         <button
           className="place-bet-stake-btn"
@@ -125,8 +281,8 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         >+ 30000</button>
         <button
           className="place-bet-stake-btn"
-          onClick={() => setStake(9189484)}
-        >+ 9189484</button>
+          onClick={() => setStake(walletDetails?.current_balance || 9189484)}
+        >MAX</button>
       </div>
       
       <div className="action-buttons-grid">
@@ -136,7 +292,7 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         >MIN STAKE</button>
         <button
           className="action-btn max"
-          onClick={() => setStake(25000)}
+          onClick={() => setStake(Math.min(25000, walletDetails?.current_balance || 25000))}
         >MAX STAKE</button>
         <button
           className="action-btn edit"
@@ -162,8 +318,9 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         <button
           className="final-btn place"
           onClick={handlePlaceBet}
+          disabled={loading}
         >
-          PLACE BET
+          {loading ? 'PLACING...' : 'PLACE BET'}
         </button>
       </div>
     </>

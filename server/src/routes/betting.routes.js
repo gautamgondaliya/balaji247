@@ -1,26 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const bettingController = require('../controllers/betting.controller');
+const { authenticateToken } = require('../middleware/auth');
 
 // Place a new bet
-router.post('/place', bettingController.placeBet);
+router.post('/place', authenticateToken, bettingController.placeBet);
 
 // Get bet details
-router.get('/:bet_id', bettingController.getBetDetails);
+router.get('/:bet_id', authenticateToken, bettingController.getBetDetails);
 
 // Get user's betting history
-router.get('/user/:user_id', bettingController.getUserBets);
+router.get('/user/:user_id', authenticateToken, bettingController.getUserBets);
 
 // Get all bets grouped by user
-router.get('/grouped/all', bettingController.getAllBetsGroupedByUser);
+router.get('/grouped/all', authenticateToken, bettingController.getAllBetsGroupedByUser);
 
 // Cancel a bet
-router.post('/:bet_id/cancel', bettingController.cancelBet);
+router.post('/:bet_id/cancel', authenticateToken, bettingController.cancelBet);
 
 // Update bet odds
-router.post('/:bet_id/odds', bettingController.updateBetOdds);
+router.post('/:bet_id/odds', authenticateToken, bettingController.updateBetOdds);
 
 // Settle a bet
-router.post('/:bet_id/settle', bettingController.settleBet);
+router.post('/:bet_id/settle', authenticateToken, bettingController.settleBet);
 
 module.exports = router; 

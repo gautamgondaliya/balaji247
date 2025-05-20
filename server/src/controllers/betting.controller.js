@@ -1,4 +1,8 @@
 const db = require('../db/knex');
+const { v4: uuidv4, v5: uuidv5 } = require('uuid');
+
+// Namespace for generating UUIDs
+const UUID_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
 
 // Place a new bet (supports back, lay, yes, no)
 exports.placeBet = async (req, res) => {
@@ -19,6 +23,11 @@ exports.placeBet = async (req, res) => {
   }
 
   try {
+    // Generate deterministic UUIDs from the market_id to ensure consistency
+    // This allows us to use the same UUID for the same market_id in future requests
+    const marketUuid = uuidv5(market_id.toString(), UUID_NAMESPACE);
+    const teamUuid = uuidv5(`team_${market_id}`, UUID_NAMESPACE);
+    
     const trx = await db.transaction();
     try {
       // Get user's wallet
@@ -52,9 +61,9 @@ exports.placeBet = async (req, res) => {
       // Check for existing open bet on the same market/selection and type
       const existingBetResult = await trx.raw(`
         SELECT * FROM bets
-        WHERE user_id = ? AND market_id = ? AND bet_type = ? AND status = 'active'
+        WHERE user_id = ? AND match_id = ? AND bet_type = ? AND bet_status = 'pending'
         ORDER BY created_at DESC LIMIT 1
-      `, [wallet.user_db_id, market_id, bet_type]);
+      `, [wallet.user_db_id, marketUuid, bet_type]);
 
       let netted = false;
       let nettedAmount = 0;
@@ -65,8 +74,8 @@ exports.placeBet = async (req, res) => {
       if (existingBetResult.rows.length > 0) {
         const existingBet = existingBetResult.rows[0];
         const existingLiability = (bet_type === 'lay' || bet_type === 'no')
-          ? parseFloat(existingBet.stake) * (parseFloat(existingBet.previous_bet_odds) - 1)
-          : parseFloat(existingBet.stake);
+          ? parseFloat(existingBet.bet_amount) * (parseFloat(existingBet.previous_bet_odds) - 1)
+          : parseFloat(existingBet.bet_amount);
 
         if (liability <= existingLiability) {
           // Netting/offsetting: reduce exposure, return difference to wallet
@@ -77,15 +86,15 @@ exports.placeBet = async (req, res) => {
 
           // Mark the existing bet as partially or fully offset/cancelled if needed
           await trx.raw(`
-            UPDATE bets SET status = 'offset', updated_at = CURRENT_TIMESTAMP WHERE id = ?
+            UPDATE bets SET bet_status = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE id = ?
           `, [existingBet.id]);
 
           // Insert a record for the offsetting bet (optional, for audit)
           await trx.raw(`
             INSERT INTO bets (
-              user_id, market_id, stake, previous_bet_odds, current_bet_odds, bet_type, bet_category, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, 'offset', CURRENT_TIMESTAMP)
-          `, [wallet.user_db_id, market_id, stake, odds, odds, bet_type, bet_category || null]);
+              user_id, match_id, bet_amount, previous_bet_odds, current_bet_odds, bet_type, bet_category, bet_status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, 'cancelled', CURRENT_TIMESTAMP)
+          `, [wallet.user_db_id, marketUuid, stake, odds, odds, bet_type, bet_category || null]);
 
           // Update wallet
           await trx.raw(`
@@ -110,18 +119,22 @@ exports.placeBet = async (req, res) => {
         const betResult = await trx.raw(`
           INSERT INTO bets (
             user_id,
-            market_id,
-            stake,
+            match_id,
+            team_id,
+            bet_amount,
+            bet_rate,
+            potential_win_amount,
+            potential_loss_amount,
             previous_bet_odds,
             current_bet_odds,
             bet_type,
             bet_category,
-            status,
+            bet_status,
             created_at
           ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, 'active', CURRENT_TIMESTAMP
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP
           ) RETURNING *
-        `, [wallet.user_db_id, market_id, stake, odds, odds, bet_type, bet_category || null]);
+        `, [wallet.user_db_id, marketUuid, teamUuid, stake, odds, stake * odds, stake, odds, odds, bet_type, bet_category || null]);
 
         // Update wallet
         await trx.raw(`
@@ -228,7 +241,7 @@ exports.cancelBet = async (req, res) => {
       }
 
       const bet = betResult.rows[0];
-      const stake = parseFloat(bet.stake);
+      const stake = parseFloat(bet.bet_amount);
       const odds = parseFloat(bet.current_bet_odds);
       let liability = stake;
       if (bet.bet_type === 'lay' || bet.bet_type === 'no') {
@@ -239,7 +252,7 @@ exports.cancelBet = async (req, res) => {
       await trx.raw(`
         UPDATE bets 
         SET 
-          status = 'cancelled',
+          bet_status = 'cancelled',
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `, [bet_id]);
@@ -316,7 +329,7 @@ exports.settleBet = async (req, res) => {
       const bet = betResult.rows[0];
       const prevOdds = parseFloat(bet.previous_bet_odds);
       const currOdds = parseFloat(result_odds);
-      const stake = parseFloat(bet.stake);
+      const stake = parseFloat(bet.bet_amount);
       let profitLoss = 0;
       let win = false;
 
@@ -343,7 +356,7 @@ exports.settleBet = async (req, res) => {
         UPDATE bets 
         SET 
           current_bet_odds = ?,
-          status = 'settled',
+          bet_status = 'settled',
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `, [currOdds, bet_id]);
@@ -445,7 +458,7 @@ exports.updateBetOdds = async (req, res) => {
       const bet = betResult.rows[0];
       const oldOdds = parseFloat(bet.current_bet_odds);
       const newOdds = parseFloat(new_odds);
-      const stake = parseFloat(bet.stake);
+      const stake = parseFloat(bet.bet_amount);
 
       // Calculate profit/loss
       let profitLoss = 0;
@@ -515,13 +528,13 @@ exports.getAllBetsGroupedByUser = async (req, res) => {
         u.user_id, u.name, u.role, u.phone, 
         json_agg(json_build_object(
           'bet_id', b.id,
-          'market_id', b.market_id,
-          'stake', b.stake,
+          'market_id', b.match_id,
+          'stake', b.bet_amount,
           'previous_bet_odds', b.previous_bet_odds,
           'current_bet_odds', b.current_bet_odds,
           'bet_type', b.bet_type,
           'bet_category', b.bet_category,
-          'status', b.status,
+          'status', b.bet_status,
           'created_at', b.created_at,
           'updated_at', b.updated_at
         ) ORDER BY b.created_at DESC) AS bets
