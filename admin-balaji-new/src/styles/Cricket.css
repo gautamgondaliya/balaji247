@@ -1,0 +1,282 @@
+.cricket-page {
+    padding: 20px;
+}
+
+.cricket-header {
+    margin-bottom: 30px;
+    background-color: #f39c12;
+    border-radius: 10px;
+    padding: 15px 20px;
+    text-align: center;
+}
+
+.cricket-header h1 {
+    font-size: 24px;
+    color: #1a1d2b;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    background-color: #242736;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px 6px 0 0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn.active {
+    background-color: #2d3142;
+    border-bottom: 3px solid #8c52ff;
+}
+
+.tab-btn:disabled {
+    background-color: #1e2130;
+    color: #5a5f75;
+    cursor: not-allowed;
+}
+
+.matches-tab,
+.markets-tab,
+.bets-tab {
+    background-color: #242736;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.matches-table,
+.market-table,
+.bets-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.live-match {
+    background-color: rgba(46, 204, 113, 0.1);
+}
+
+.league-cell {
+    display: flex;
+    align-items: center;
+}
+
+.live-badge {
+    background-color: #e74c3c;
+    color: #fff;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    margin-right: 8px;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.live {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+}
+
+.status-badge.upcoming {
+    background-color: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+}
+
+.status-badge.completed {
+    background-color: rgba(149, 165, 166, 0.2);
+    color: #95a5a6;
+}
+
+.status-badge.pending {
+    background-color: rgba(241, 196, 15, 0.2);
+    color: #f1c40f;
+}
+
+.date-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.match-time,
+.bet-time {
+    font-size: 12px;
+    color: #a0a3bd;
+    margin-top: 5px;
+}
+
+.view-btn,
+.manage-btn {
+    background-color: #2d3142;
+    border: none;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.view-btn:hover,
+.manage-btn:hover {
+    background-color: #8c52ff;
+}
+
+.match-info {
+    padding: 20px;
+    background-color: #2d3142;
+    border-bottom: 1px solid #3a3f55;
+}
+
+.match-info h2 {
+    font-size: 18px;
+    margin: 0 0 5px;
+    color: #fff;
+}
+
+.match-info p {
+    font-size: 14px;
+    color: #a0a3bd;
+    margin: 0;
+}
+
+.market-section {
+    padding: 20px;
+    border-bottom: 1px solid #3a3f55;
+}
+
+.market-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.market-header h3 {
+    font-size: 16px;
+    color: #fff;
+    margin: 0;
+}
+
+.reverse-btn,
+.submit-btn,
+.suspend-btn {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.reverse-btn {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+.reverse-btn:hover {
+    background-color: #c0392b;
+}
+
+.submit-btn {
+    background-color: #2ecc71;
+    color: #fff;
+}
+
+.submit-btn:hover {
+    background-color: #27ae60;
+}
+
+.suspend-btn {
+    background-color: #f39c12;
+    color: #fff;
+}
+
+.suspend-btn:hover {
+    background-color: #d35400;
+}
+
+.odds-input {
+    background-color: #1e2130;
+    border: 1px solid #3a3f55;
+    color: #fff;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
+    outline: none;
+}
+
+.odds-input.no {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-color: #e74c3c;
+}
+
+.odds-input.yes {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-color: #2ecc71;
+}
+
+.market-settings {
+    font-size: 12px;
+    color: #a0a3bd;
+    margin-top: 5px;
+}
+
+.market-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.top-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.runs-input {
+    background-color: #1e2130;
+    border: 1px solid #3a3f55;
+    color: #fff;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 120px;
+    outline: none;
+}
+
+.bets-tab h2 {
+    padding: 20px 20px 0;
+    font-size: 18px;
+    margin: 0 0 20px;
+    color: #fff;
+}
+
+.user-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-phone {
+    font-size: 12px;
+    color: #a0a3bd;
+    margin-top: 5px;
+}

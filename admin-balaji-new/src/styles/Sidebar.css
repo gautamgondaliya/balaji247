@@ -1,0 +1,111 @@
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #1e2130;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.admin-profile {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    background-color: #242736;
+    border-bottom: 1px solid #3a3f55;
+}
+
+.avatar-container {
+    width: 40px;
+    height: 40px;
+    background-color: #8c52ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.avatar {
+    font-size: 20px;
+    color: #fff;
+}
+
+.admin-info {
+    flex: 1;
+}
+
+.admin-info h3 {
+    font-size: 14px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-role {
+    font-size: 12px;
+    color: #a0a3bd;
+    margin: 0;
+}
+
+.admin-access {
+    font-size: 12px;
+    color: #8c52ff;
+    padding: 10px 20px;
+    background-color: #242736;
+    border-bottom: 1px solid #3a3f55;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-links li {
+    border-bottom: 1px solid #2d3142;
+}
+
+.nav-links li:last-child {
+    border-bottom: none;
+}
+
+.nav-links li.active {
+    background-color: #8c52ff;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.nav-link:hover {
+    background-color: #2d3142;
+}
+
+.nav-links li.active .nav-link {
+    background-color: #8c52ff;
+}
+
+.nav-link i {
+    margin-right: 10px;
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}

@@ -1,0 +1,147 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #1a1d2b;
+    background-image: linear-gradient(135deg, #1e2130 0%, #191f2b 100%);
+    padding: 20px;
+}
+
+.login-form-container {
+    width: 100%;
+    max-width: 450px;
+    background-color: #242736;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    background-color: #8c52ff;
+    padding: 30px;
+    text-align: center;
+    color: white;
+}
+
+.login-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.login-header h2 {
+    margin: 5px 0 0;
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.login-form {
+    padding: 30px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #a0a3bd;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8c52ff;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    background-color: #1e2130;
+    border: 1px solid #3a3f55;
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.input-with-icon input:focus {
+    border-color: #8c52ff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(140, 82, 255, 0.2);
+}
+
+.input-with-icon input::placeholder {
+    color: #5a5f75;
+}
+
+.form-actions {
+    margin-top: 30px;
+}
+
+.login-button {
+    width: 100%;
+    padding: 15px;
+    background-color: #8c52ff;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-button:hover {
+    background-color: #7841e0;
+}
+
+.login-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.login-button.loading {
+    background-color: #6c5ce7;
+}
+
+.spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner i {
+    margin-right: 8px;
+}
+
+.login-footer {
+    margin-top: 25px;
+    text-align: center;
+    color: #a0a3bd;
+    font-size: 12px;
+}
