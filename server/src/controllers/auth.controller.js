@@ -43,65 +43,94 @@ exports.register = async (req, res) => {
   }
 
   try {
-    // Check if phone already exists
-    const existing = await db.raw(
-      'SELECT 1 FROM users WHERE phone = ? LIMIT 1',
-      [phone]
-    );
-    if (existing.rows.length > 0) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Phone number already registered.' 
-      });
-    }
+    // Start a transaction
+    const trx = await db.transaction();
 
-    // Generate unique user ID
-    const userId = await generateUserId();
-    
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const insertQuery = `
-      INSERT INTO users (user_id, name, password, phone, role, is_active)
-      VALUES (?, ?, ?, ?, ?, ?)
-      RETURNING user_id, name, phone, role, is_active, created_at, updated_at
-    `;
-    const values = [
-      userId,
-      name,
-      hashedPassword,
-      phone,
-      'user', // default role
-      true    // default is_active
-    ];
-    const result = await db.raw(insertQuery, values);
-    const user = result.rows[0];
+    try {
+      // Check if phone already exists
+      const existing = await trx.raw(
+        'SELECT 1 FROM users WHERE phone = ? LIMIT 1',
+        [phone]
+      );
+      if (existing.rows.length > 0) {
+        await trx.rollback();
+        return res.status(400).json({ 
+          success: false,
+          message: 'Phone number already registered.' 
+        });
+      }
 
-    // Create JWT token
-    const token = jwt.sign(
-      { 
-        user_id: user.user_id,
-        name: user.name,
-        phone: user.phone,
-        role: user.role 
-      },
-      JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+      // Generate unique user ID
+      const userId = await generateUserId();
+      
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Insert user with client role
+      const insertUserQuery = `
+        INSERT INTO users (user_id, name, password, phone, role, is_active)
+        VALUES (?, ?, ?, ?, ?, ?)
+        RETURNING id, user_id, name, phone, role, is_active, created_at, updated_at
+      `;
+      const userValues = [
+        userId,
+        name,
+        hashedPassword,
+        phone,
+        'client', // Set role as client
+        true     // default is_active
+      ];
+      const userResult = await trx.raw(insertUserQuery, userValues);
+      const user = userResult.rows[0];
 
-    res.status(201).json({
-      success: true,
-      message: 'Registration successful',
-      data: {
-        user: {
+      // Create wallet for the user
+      const insertWalletQuery = `
+        INSERT INTO wallets (
+          user_id,
+          current_balance,
+          current_exposure,
+          prev_balance,
+          prev_exposure
+        )
+        VALUES (?, 0.00, 0.00, 0.00, 0.00)
+        RETURNING *
+      `;
+      await trx.raw(insertWalletQuery, [user.id]);
+
+      // Commit the transaction
+      await trx.commit();
+
+      // Create JWT token
+      const token = jwt.sign(
+        { 
           user_id: user.user_id,
           name: user.name,
           phone: user.phone,
-          role: user.role,
-          is_active: user.is_active,
-          created_at: user.created_at
+          role: user.role 
         },
-        token
-      }
-    });
+        JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'Registration successful',
+        data: {
+          user: {
+            user_id: user.user_id,
+            name: user.name,
+            phone: user.phone,
+            role: user.role,
+            is_active: user.is_active,
+            created_at: user.created_at
+          },
+          token
+        }
+      });
+    } catch (err) {
+      // Rollback the transaction in case of error
+      await trx.rollback();
+      throw err;
+    }
   } catch (err) {
     console.error('Register error:', err);
     res.status(500).json({ 

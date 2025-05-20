@@ -3,6 +3,8 @@ const {getEventDetails, getCricketData} = require('./routes/eventDetails.routes'
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes');
+const walletRoutes = require('./routes/wallet.routes');
+const bettingRoutes = require('./routes/betting.routes');
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use(cors(corsOptions));
 app.use('/api/event-details', getEventDetails);
 app.use('/api/cricket', getCricketData);
 app.use('/api/auth', authRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/betting', bettingRoutes);
 
 // No API routes
 
