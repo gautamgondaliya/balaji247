@@ -1,0 +1,134 @@
+/* Betting Data Display Styles */
+
+.betting-data-container {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.betting-data-container h2 {
+  margin-bottom: 15px;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.betting-data-container h3 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #444;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #e53935;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+/* Message styles */
+.betting-messages {
+  margin-bottom: 20px;
+}
+
+.message-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.market-messages {
+  margin-bottom: 15px;
+}
+
+.market-messages h4 {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.market-messages ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.market-messages li {
+  padding: 8px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+}
+
+.market-messages li.active {
+  border-left: 3px solid #4caf50;
+}
+
+.market-messages li.inactive {
+  border-left: 3px solid #f44336;
+  opacity: 0.7;
+}
+
+.timestamp {
+  display: block;
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 3px;
+}
+
+.message-content {
+  display: block;
+  word-break: break-word;
+}
+
+/* Books table styles */
+.betting-books {
+  margin-bottom: 20px;
+}
+
+.books-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.books-table th, 
+.books-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.books-table th {
+  background-color: #f8f8f8;
+  font-weight: 600;
+}
+
+.books-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Score data styles */
+.score-data {
+  background-color: #f8f8f8;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.match-info p {
+  margin: 8px 0;
+  line-height: 1.4;
+}
+
+/* Inactive markets styles */
+.inactive-markets {
+  background-color: #f0f4f8;
+  padding: 10px 15px;
+  border-radius: 4px;
+  display: inline-block;
+}

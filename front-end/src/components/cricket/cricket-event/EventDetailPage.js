@@ -179,17 +179,7 @@ const EventDetailPage = () => {
 
   // Helper to render BALL RUNNING indicator consistently across all market types
   const renderBallRunning = () => (
-    <div style={{ 
-      background: '#e91e63', 
-      color: '#fff', 
-      fontWeight: 700, 
-      fontSize: 22, 
-      padding: '12px 0', 
-      width: '100%', 
-      textAlign: 'center',
-      borderRadius: 0,
-      letterSpacing: '1px'
-    }}>
+    <div className="ball-running-banner">
       BALL RUNNING
     </div>
   );
@@ -268,21 +258,21 @@ const EventDetailPage = () => {
     const runners = (market.sl || market.runners || []);
     
     return (
-      <table className="odds-table" style={{ width: '100%', marginTop: 8, marginBottom: 8, borderCollapse: 'collapse' }}>
+      <table className="odds-table">
         <thead>
           <tr style={{ background: '#f7f8fa' }}>
-            <th style={{ textAlign: 'left', padding: 6 }}>Selection</th>
-            <th style={{ background: '#bbdefb', color: '#222', padding: 6 }}>Back</th>
-            <th style={{ background: '#ffcdd2', color: '#222', padding: 6 }}>Lay</th>
+            <th>Selection</th>
+            <th className="back">Back</th>
+            <th className="lay">Lay</th>
           </tr>
         </thead>
         <tbody>
           {runners.map((runner, idx) => {
             return (
-              <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: 6 }}>{runner.sln || runner.name || runner.RN || ''}</td>
+              <tr key={idx}>
+                <td>{runner.sln || runner.name || runner.RN || ''}</td>
                 {/* Back price */}
-                <td style={{ background: '#bbdefb', textAlign: 'center', padding: 6, cursor: 'pointer' }}
+                <td className="back"
                     onClick={() => {
                     setSelectedMarketIndex(market.mi || market.marketId || market.id);
                     setSelectedBet({ 
@@ -298,10 +288,10 @@ const EventDetailPage = () => {
                         setStake('');
                     }}
                   >
-                  <div style={{ fontWeight: 700, fontSize: 16 }}>{runner.b || (runner.ex?.b?.[0]?.p) || '-'}</div>
+                  <div className="odds-table-value">{runner.b || (runner.ex?.b?.[0]?.p) || '-'}</div>
                   </td>
                 {/* Lay price */}
-                <td style={{ background: '#ffcdd2', textAlign: 'center', padding: 6, cursor: 'pointer' }}
+                <td className="lay"
                     onClick={() => {
                     setSelectedMarketIndex(market.mi || market.marketId || market.id);
                     setSelectedBet({ 
@@ -317,7 +307,7 @@ const EventDetailPage = () => {
                         setStake('');
                     }}
                   >
-                  <div style={{ fontWeight: 700, fontSize: 16 }}>{runner.l || (runner.ex?.l?.[0]?.p) || '-'}</div>
+                  <div className="odds-table-value">{runner.l || (runner.ex?.l?.[0]?.p) || '-'}</div>
                   </td>
               </tr>
             );
@@ -337,61 +327,61 @@ const EventDetailPage = () => {
 
   // Render SESSION_MARKETS in custom style with header row
   const renderSessionMarkets = (markets) => (
-    <div style={{ marginBottom: 32 }}>
-      <div style={{ background: '#c3003c', color: '#fff', fontWeight: 700, fontSize: 20, padding: '10px 20px', borderTopLeftRadius: 6, borderTopRightRadius: 6, marginBottom: 0 }}>
+    <div className="market-section">
+      <div className="market-header">
         SESSION MARKETS
       </div>
       {/* Header row for NO/YES */}
-      <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderBottom: '1px solid #eee', padding: '0 0 0 60px', minHeight: 40 }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: 180 }}></div>
-          <div style={{ display: 'flex', minWidth: 120 }}>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>NO</div>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>YES</div>
+      <div className="market-header-row">
+        <div className="market-header-content">
+          <div className="market-header-label"></div>
+          <div className="market-header-values">
+            <div className="market-header-no">NO</div>
+            <div className="market-header-yes">YES</div>
           </div>
           <div style={{ flex: 1 }}></div>
         </div>
       </div>
       {markets.map((market, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', background: '#fff', borderBottom: '1px solid #eee', padding: '18px 0 10px 0', position: 'relative' }}>
-          <div style={{ width: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 10 }}>
+        <div key={idx} className="market-row">
+          <div className="market-bookmark-container">
             <BookmarkIcon />
-            <div style={{ marginTop: 8 }}><CheckmarkIcon /></div>
+            <div className="market-bookmark-checkmark"><CheckmarkIcon /></div>
           </div>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
-            <div style={{ width: 180, fontWeight: 600, fontSize: 20, marginBottom: 8 }}>{market.mn}</div>
-            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
+          <div className="market-content">
+            <div className="market-name">{market.mn}</div>
+            <div className="market-values-container">
               {isBallRunning(market) ? (
                 renderBallRunning()
               ) : (
                 <>
                   {/* NO odds */}
-                  <div style={{ background: '#ffcdd2', color: '#c3003c', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginRight: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                  <div className="odds-button-no"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.rn || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                    <div className="odds-value">{market.rn || '-'}</div>
+                    <div className="odds-volume">{market.on || 100}</div>
                   </div>
                   {/* YES odds */}
-                  <div style={{ background: '#bbdefb', color: '#1976d2', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginLeft: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                  <div className="odds-button-yes"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.ry || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                    <div className="odds-value">{market.ry || '-'}</div>
+                    <div className="odds-volume">{market.oy || 100}</div>
                   </div>
                 </>
               )}
             </div>
             {/* Max Bet/Market info */}
-            <div style={{ marginLeft: 32, color: '#222', fontSize: 15, fontWeight: 400 }}>
+            <div className="market-limits">
               <div>Max Bet: {market.mins || 100}</div>
               <div>Max Market: {market.mml || 500000}</div>
             </div>
@@ -403,54 +393,54 @@ const EventDetailPage = () => {
 
   // Render FALL_OF_WICKET markets
   const renderFallOfWicketMarkets = (markets) => (
-    <div style={{ marginBottom: 32 }}>
-      <div style={{ background: '#c3003c', color: '#fff', fontWeight: 700, fontSize: 20, padding: '10px 20px', borderTopLeftRadius: 6, borderTopRightRadius: 6, marginBottom: 0 }}>
+    <div className="market-section">
+      <div className="market-header">
         FALL OF WICKET
       </div>
       {/* Header row for NO/YES */}
-      <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderBottom: '1px solid #eee', padding: '0 0 0 60px', minHeight: 40 }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: 180 }}></div>
-          <div style={{ display: 'flex', minWidth: 120 }}>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>NO</div>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>YES</div>
+      <div className="market-header-row">
+        <div className="market-header-content">
+          <div className="market-header-label"></div>
+          <div className="market-header-values">
+            <div className="market-header-no">NO</div>
+            <div className="market-header-yes">YES</div>
           </div>
           <div style={{ flex: 1 }}></div>
         </div>
       </div>
       {markets.map((market, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', background: '#fff', borderBottom: '1px solid #eee', padding: '18px 0 10px 0', position: 'relative' }}>
-          <div style={{ width: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 10 }}>
+        <div key={idx} className="market-row">
+          <div className="market-bookmark-container">
             <BookmarkIcon />
           </div>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
-            <div style={{ width: 180, fontWeight: 600, fontSize: 20, marginBottom: 8 }}>{market.mn}</div>
-            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
+          <div className="market-content">
+            <div className="market-name">{market.mn}</div>
+            <div className="market-values-container">
               {isBallRunning(market) ? (
                 renderBallRunning()
               ) : (
-                <div style={{ display: 'flex', minWidth: 120 }}>
+                <div className="odds-button-container">
                   {/* NO odds */}
-                  <div style={{ background: '#ffcdd2', color: '#c3003c', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginRight: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                  <div className="odds-button-no"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.rn || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                    <div className="odds-value">{market.rn || '-'}</div>
+                    <div className="odds-volume">{market.on || 100}</div>
                   </div>
                   {/* YES odds */}
-                  <div style={{ background: '#bbdefb', color: '#1976d2', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginLeft: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                  <div className="odds-button-yes"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.ry || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                    <div className="odds-value">{market.ry || '-'}</div>
+                    <div className="odds-volume">{market.oy || 100}</div>
                   </div>
                 </div>
               )}
@@ -463,60 +453,60 @@ const EventDetailPage = () => {
 
   // Render OVER_SESSION_MARKET in custom style with header row
   const renderOverSessionMarkets = (markets) => (
-    <div style={{ marginBottom: 32 }}>
-      <div style={{ background: '#c3003c', color: '#fff', fontWeight: 700, fontSize: 20, padding: '10px 20px', borderTopLeftRadius: 6, borderTopRightRadius: 6, marginBottom: 0 }}>
+    <div className="market-section">
+      <div className="market-header">
         OVER SESSION MARKET
       </div>
       {/* Header row for NO/YES */}
-      <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderBottom: '1px solid #eee', padding: '0 0 0 60px', minHeight: 40 }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: 180 }}></div>
-          <div style={{ display: 'flex', minWidth: 120 }}>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>NO</div>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>YES</div>
+      <div className="market-header-row">
+        <div className="market-header-content">
+          <div className="market-header-label"></div>
+          <div className="market-header-values">
+            <div className="market-header-no">NO</div>
+            <div className="market-header-yes">YES</div>
           </div>
           <div style={{ flex: 1 }}></div>
         </div>
       </div>
       {markets.map((market, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', background: '#fff', borderBottom: '1px solid #eee', padding: '18px 0 10px 0', position: 'relative' }}>
-          <div style={{ width: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 10 }}>
+        <div key={idx} className="market-row">
+          <div className="market-bookmark-container">
             <BookmarkIcon />
           </div>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
-            <div style={{ width: 180, fontWeight: 600, fontSize: 20, marginBottom: 8 }}>{market.mn}</div>
-            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
+          <div className="market-content">
+            <div className="market-name">{market.mn}</div>
+            <div className="market-values-container">
               {isBallRunning(market) ? (
                 renderBallRunning()
               ) : (
-                <div style={{ display: 'flex', minWidth: 120 }}>
+                <div className="odds-button-container">
                   {/* NO odds */}
-                  <div style={{ background: '#ffcdd2', color: '#c3003c', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginRight: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                  <div className="odds-button-no"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.rn || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                    <div className="odds-value">{market.rn || '-'}</div>
+                    <div className="odds-volume">{market.on || 100}</div>
                   </div>
                   {/* YES odds */}
-                  <div style={{ background: '#bbdefb', color: '#1976d2', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginLeft: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                  <div className="odds-button-yes"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.ry || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                    <div className="odds-value">{market.ry || '-'}</div>
+                    <div className="odds-volume">{market.oy || 100}</div>
                   </div>
                 </div>
               )}
             </div>
             {/* Max Bet/Market info */}
-            <div style={{ marginLeft: 32, color: '#222', fontSize: 15, fontWeight: 400 }}>
+            <div className="market-limits">
               <div>Max Bet: {market.mins || 100}</div>
               <div>Max Market: {market.mml || 500000}</div>
             </div>
@@ -577,7 +567,7 @@ const EventDetailPage = () => {
                   background: '#bbdefb', 
                   color: '#1976d2', 
                   fontWeight: 700, 
-                  fontSize: 22, 
+                  fontSize: 14, 
                   padding: '10px 24px', 
                   borderRadius: 6, 
                   textAlign: 'center', 
@@ -615,88 +605,60 @@ const EventDetailPage = () => {
 
   // Render OTHER_MARKETS in custom style with header row
   const renderOtherMarkets = (markets) => (
-    <div style={{ marginBottom: 32 }}>
-      <div style={{ background: '#c3003c', color: '#fff', fontWeight: 700, fontSize: 20, padding: '10px 20px', borderTopLeftRadius: 6, borderTopRightRadius: 6, marginBottom: 0 }}>
+    <div className="market-section">
+      <div className="market-header">
         OTHER MARKETS
       </div>
       {/* Header row for NO/YES */}
-      <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderBottom: '1px solid #eee', padding: '0 0 0 60px', minHeight: 40 }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: 280 }}></div>
-          <div style={{ display: 'flex', minWidth: 120 }}>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>NO</div>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>YES</div>
+      <div className="market-header-row">
+        <div className="market-header-content">
+          <div className="market-header-label" style={{ width: 280 }}></div>
+          <div className="market-header-values">
+            <div className="market-header-no">NO</div>
+            <div className="market-header-yes">YES</div>
           </div>
           <div style={{ flex: 1 }}></div>
         </div>
       </div>
       {markets.map((market, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', background: '#fff', borderBottom: '1px solid #eee', padding: '18px 0 10px 0', position: 'relative' }}>
-          <div style={{ width: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 10 }}>
+        <div key={idx} className="market-row">
+          <div className="market-bookmark-container">
             <BookmarkIcon />
           </div>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
-            <div style={{ width: 280, fontWeight: 600, fontSize: 16, marginBottom: 8 }}>{market.mn}</div>
-            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
+          <div className="market-content">
+            <div className="market-name-large">{market.mn}</div>
+            <div className="market-values-container">
               {isBallRunning(market) ? (
                 renderBallRunning()
               ) : (
-                <div style={{ display: 'flex', minWidth: 120 }}>
+                <div className="odds-button-container">
                   {/* NO odds */}
-                  <div style={{ 
-                    background: '#ffcdd2', 
-                    color: '#c3003c', 
-                    fontWeight: 700, 
-                    fontSize: 20, 
-                    padding: '10px 15px', 
-                    borderRadius: 6, 
-                    marginRight: 2, 
-                    textAlign: 'center', 
-                    minWidth: 60,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
-                  }}
+                  <div className="odds-button-no odds-button-compact"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.rn || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                    <div className="odds-value">{market.rn || '-'}</div>
+                    <div className="odds-volume">{market.on || 100}</div>
                   </div>
                   {/* YES odds */}
-                  <div style={{ 
-                    background: '#bbdefb', 
-                    color: '#1976d2', 
-                    fontWeight: 700, 
-                    fontSize: 20, 
-                    padding: '10px 15px', 
-                    borderRadius: 6, 
-                    marginLeft: 2, 
-                    textAlign: 'center', 
-                    minWidth: 60,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
-                  }}
+                  <div className="odds-button-yes odds-button-compact"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.ry || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                    <div className="odds-value">{market.ry || '-'}</div>
+                    <div className="odds-volume">{market.oy || 100}</div>
                   </div>
                 </div>
               )}
             </div>
             {/* Max Bet/Market info */}
-            <div style={{ marginLeft: 32, color: '#222', fontSize: 15, fontWeight: 400 }}>
+            <div className="market-limits">
               <div>Max Bet: {market.mins || 100}</div>
               <div>Max Market: {market.mml || market.ms || 25000}</div>
             </div>
@@ -708,88 +670,60 @@ const EventDetailPage = () => {
 
   // Render TOTAL_ADVANCE in custom style with header row
   const renderTotalAdvanceMarkets = (markets) => (
-    <div style={{ marginBottom: 32 }}>
-      <div style={{ background: '#c3003c', color: '#fff', fontWeight: 700, fontSize: 20, padding: '10px 20px', borderTopLeftRadius: 6, borderTopRightRadius: 6, marginBottom: 0 }}>
+    <div className="market-section">
+      <div className="market-header">
         TOTAL ADVANCE
       </div>
       {/* Header row for NO/YES */}
-      <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderBottom: '1px solid #eee', padding: '0 0 0 60px', minHeight: 40 }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: 280 }}></div>
-          <div style={{ display: 'flex', minWidth: 120 }}>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>NO</div>
-            <div style={{ width: 80, textAlign: 'center', color: '#222', fontWeight: 700, letterSpacing: 1 }}>YES</div>
+      <div className="market-header-row">
+        <div className="market-header-content">
+          <div className="market-header-label" style={{ width: 280 }}></div>
+          <div className="market-header-values">
+            <div className="market-header-no">NO</div>
+            <div className="market-header-yes">YES</div>
           </div>
           <div style={{ flex: 1 }}></div>
         </div>
       </div>
       {markets.map((market, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', background: '#fff', borderBottom: '1px solid #eee', padding: '18px 0 10px 0', position: 'relative' }}>
-          <div style={{ width: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 10 }}>
+        <div key={idx} className="market-row">
+          <div className="market-bookmark-container">
             <BookmarkIcon />
           </div>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
-            <div style={{ width: 280, fontWeight: 600, fontSize: 16, marginBottom: 8 }}>{market.mn}</div>
-            <div style={{ display: 'flex', minWidth: 120, flex: 1 }}>
+          <div className="market-content">
+            <div className="market-name-large">{market.mn}</div>
+            <div className="market-values-container">
               {isBallRunning(market) ? (
                 renderBallRunning()
               ) : (
-                <div style={{ display: 'flex', minWidth: 120 }}>
+                <div className="odds-button-container">
                   {/* NO odds */}
-                  <div style={{ 
-                    background: '#ffcdd2', 
-                    color: '#c3003c', 
-                    fontWeight: 700, 
-                    fontSize: 20, 
-                    padding: '10px 15px', 
-                    borderRadius: 6, 
-                    marginRight: 2, 
-                    textAlign: 'center', 
-                    minWidth: 60,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
-                  }}
+                  <div className="odds-button-no odds-button-compact"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.rn || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                    <div className="odds-value">{market.rn || '-'}</div>
+                    <div className="odds-volume">{market.on || 100}</div>
                   </div>
                   {/* YES odds */}
-                  <div style={{ 
-                    background: '#bbdefb', 
-                    color: '#1976d2', 
-                    fontWeight: 700, 
-                    fontSize: 20, 
-                    padding: '10px 15px', 
-                    borderRadius: 6, 
-                    marginLeft: 2, 
-                    textAlign: 'center', 
-                    minWidth: 60,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
-                  }}
+                  <div className="odds-button-yes odds-button-compact"
                     onClick={() => {
                       setSelectedMarketIndex(market.mi);
                       setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
                       setStake('');
                     }}
                   >
-                    <div>{market.ry || '-'}</div>
-                    <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                    <div className="odds-value">{market.ry || '-'}</div>
+                    <div className="odds-volume">{market.oy || 100}</div>
                   </div>
                 </div>
               )}
             </div>
             {/* Max Bet/Market info */}
-            <div style={{ marginLeft: 32, color: '#222', fontSize: 15, fontWeight: 400 }}>
+            <div className="market-limits">
               <div>Max Bet: {market.mins || 100}</div>
               <div>Max Market: {market.mml || market.ms || 25000}</div>
             </div>
@@ -863,66 +797,33 @@ const EventDetailPage = () => {
               {/* Render based on market type */}
               {marketType === 'BOOKMAKER' && market.sl ? renderOddsTable(market) : 
                marketType === 'WINNING_ODDS' ? (
-                <table className="odds-table" style={{ width: '100%', marginTop: 8, marginBottom: 8, borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ background: '#f7f8fa' }}>
-                      <th style={{ textAlign: 'left', padding: 6 }}>Selection</th>
-                      <th style={{ background: '#bbdefb', color: '#222', padding: 6 }}>Back</th>
-                      <th style={{ background: '#ffcdd2', color: '#222', padding: 6 }}>Lay</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(market.runners || []).map((runner, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                        <td style={{ padding: 6 }}>{runner.RN || ''}</td>
-                        <td style={{ background: '#bbdefb', textAlign: 'center', padding: 6, cursor: 'pointer' }}
-                          onClick={() => {
-                            setSelectedMarketIndex(market.id);
-                            setSelectedBet({ marketIndex: market.id, market, odd: { type: 'back', price: runner.ex?.b?.[0]?.p, vol: '' } });
-                            setStake('');
-                          }}
-                        >
-                          <div style={{ fontWeight: 700, fontSize: 16 }}>{runner.ex?.b?.[0]?.p || '-'}</div>
-                        </td>
-                        <td style={{ background: '#ffcdd2', textAlign: 'center', padding: 6, cursor: 'pointer' }}
-                          onClick={() => {
-                            setSelectedMarketIndex(market.id);
-                            setSelectedBet({ marketIndex: market.id, market, odd: { type: 'lay', price: runner.ex?.l?.[0]?.p, vol: '' } });
-                            setStake('');
-                          }}
-                        >
-                          <div style={{ fontWeight: 700, fontSize: 16 }}>{runner.ex?.l?.[0]?.p || '-'}</div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                renderOddsTable(market)
                ) : (
                 isBallRunning(market) ? (
                   renderBallRunning()
                 ) : (
-                  <div style={{ display: 'flex', minWidth: 120, margin: '10px 0' }}>
+                  <div className="odds-button-container" style={{ margin: '10px 0' }}>
                     {/* NO odds */}
-                    <div style={{ background: '#ffcdd2', color: '#c3003c', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginRight: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                    <div className="odds-button-no"
                       onClick={() => {
                         setSelectedMarketIndex(market.mi);
                         setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
                         setStake('');
                       }}
                     >
-                      <div>{market.rn || '-'}</div>
-                      <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                      <div className="odds-value">{market.rn || '-'}</div>
+                      <div className="odds-volume">{market.on || 100}</div>
                     </div>
                     {/* YES odds */}
-                    <div style={{ background: '#bbdefb', color: '#1976d2', fontWeight: 700, fontSize: 22, padding: '10px 24px', borderRadius: 6, marginLeft: 2, textAlign: 'center', minWidth: 60, cursor: 'pointer' }}
+                    <div className="odds-button-yes"
                       onClick={() => {
                         setSelectedMarketIndex(market.mi);
                         setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
                         setStake('');
                       }}
                     >
-                      <div>{market.ry || '-'}</div>
-                      <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                      <div className="odds-value">{market.ry || '-'}</div>
+                      <div className="odds-volume">{market.oy || 100}</div>
                     </div>
                   </div>
                 )

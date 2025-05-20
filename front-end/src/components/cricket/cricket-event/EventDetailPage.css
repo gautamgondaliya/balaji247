@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Oswald:wght@200..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
 .event-detail-container {
     display: flex;
     background: #f7f8fa;
@@ -101,7 +100,7 @@
 }
 
 .nav-link.event-detail-tab {
-        background: #fff;
+    background: #fff;
     border: 2px solid #c3003c;
     color: #c3003c;
     font-weight: 700;
@@ -150,11 +149,10 @@
 }
 
 .event-detail-markets {
-       padding-right: 15px;
+    padding-right: 15px;
     padding-top: 20px;
     padding-left: 10px;
     background-color: #f1f1f1;
-   
 }
 
 .event-title-name-all {
@@ -337,7 +335,6 @@
         opacity: 0;
         transform: translateY(-30px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -602,68 +599,304 @@
     letter-spacing: 0.01em;
 }
 
-@media(max-width:1000px){
-    .event-detail-container{
-        display: flex;
-    flex-direction: column-reverse;
-    }
-    .event-detail-container-left {
-    flex: 1 1;
-    width: -webkit-fill-available;
-      min-width: -webkit-fill-available;
-    max-width: -webkit-fill-available;
-    display: flex;
-    margin-right: 16px;
-    margin-left: 0px;
-    flex-direction: column;
-    gap: 18px;
-}
-.event-detail-container-right {
-    flex: 2 1;
-    width: 100%;
-}
-.event-detail-header {
-    background: #c3003c;
-    color: #fff;
-    font-weight: bold;
-    font-size: 15px;
-    padding: 5px;
-    border-top-left-radius: 0;
-    border-bottom-right-radius: 0;
-    border-top-right-radius: 20px;
-    border-bottom-left-radius: 0;
-    display: flex;
-    align-items: center;
-    min-width: 340px;
-}
-.event-detail-date {
-    font-size: 15px;
-    font-weight: 700;
-}
+
+/* New CSS Classes for the migrated inline styles */
+
+
+/* Market Section Headers */
+
+.market-section {
+    margin-bottom: 32px;
 }
 
-@media (max-width:450px){
-    .event-detail-header {
-        background: #c3003c;
+.market-header {
+    background: #c3003c;
     color: #fff;
-    font-weight: bold;
-    font-size: 13px;
-    padding: 5px;
-    border-top-left-radius: 0;
-    border-bottom-right-radius: 0;
-    border-top-right-radius: 20px;
-    border-bottom-left-radius: 0;
+    font-weight: 700;
+    font-size: 20px;
+    padding: 10px 20px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin-bottom: 0;
+}
+
+.market-header-row {
     display: flex;
     align-items: center;
-    min-width: fit-content;
-    padding-right: 12px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 0 0 0 60px;
+    min-height: 40px;
 }
-.event-detail-date {
-    font-size: 13px;
+
+.market-header-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.market-header-label {
+    width: 180px;
+}
+
+.market-header-values {
+    display: flex;
+    min-width: 120px;
+}
+
+.market-header-no,
+.market-header-yes {
+    width: 80px;
+    text-align: center;
+    color: #222;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+
+/* Market Row Styles */
+
+.market-row {
+    display: flex;
+    align-items: flex-start;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 18px 0 10px 0;
+    position: relative;
+}
+
+.market-bookmark-container {
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.market-bookmark-checkmark {
+    margin-top: 8px;
+}
+
+.market-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+.market-name {
+    width: 180px;
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.market-name-large {
+    width: 280px;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.market-values-container {
+    display: flex;
+    min-width: 120px;
+    flex: 1;
+}
+
+
+/* BALL RUNNING Banner */
+
+.ball-running-banner {
+    background: #e91e63;
+    color: #fff;
+    font-weight: 700;
+    font-size: 22px;
+    padding: 12px 0;
+    width: 100%;
+    text-align: center;
+    border-radius: 0;
+    letter-spacing: 1px;
+}
+
+
+/* Odds Buttons */
+
+.odds-button-container {
+    display: flex;
+    min-width: 120px;
+}
+
+.odds-button-no {
+    background: #ffcdd2;
+    color: #c3003c;
+    font-weight: 700;
+    font-size: 22px;
+    padding: 10px 24px;
+    border-radius: 6px;
+    margin-right: 2px;
+    text-align: center;
+    min-width: 60px;
+    cursor: pointer;
+}
+
+.odds-button-yes {
+    background: #bbdefb;
+    color: #1976d2;
+    font-weight: 700;
+    font-size: 22px;
+    padding: 10px 24px;
+    border-radius: 6px;
+    margin-left: 2px;
+    text-align: center;
+    min-width: 60px;
+    cursor: pointer;
+}
+
+.odds-button-compact {
+    font-size: 20px;
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.odds-value {
     font-weight: 700;
 }
-.event-detail-markets {
-    padding: 10px;
-    background-color: #f1f1f1;
+
+.odds-volume {
+    font-size: 14px;
+    color: #222;
+    font-weight: 400;
 }
+
+
+/* Market Limits Info */
+
+.market-limits {
+    margin-left: 32px;
+    color: #222;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+
+/* Odds Table */
+
+.odds-table {
+    width: 100%;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    border-collapse: collapse;
+}
+
+.odds-table th {
+    text-align: left;
+    padding: 6px;
+}
+
+.odds-table th.back {
+    background: #bbdefb;
+    color: #222;
+    padding: 6px;
+}
+
+.odds-table th.lay {
+    background: #ffcdd2;
+    color: #222;
+    padding: 6px;
+}
+
+.odds-table td {
+    padding: 6px;
+}
+
+.odds-table tr {
+    border-bottom: 1px solid #eee;
+}
+
+.odds-table td.back {
+    background: #bbdefb;
+    text-align: center;
+    padding: 6px;
+    cursor: pointer;
+}
+
+.odds-table td.lay {
+    background: #ffcdd2;
+    text-align: center;
+    padding: 6px;
+    cursor: pointer;
+}
+
+.odds-table-value {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+@media(max-width:1000px) {
+    .event-detail-container {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+    .event-detail-container-left {
+        flex: 1 1;
+        width: -webkit-fill-available;
+        min-width: -webkit-fill-available;
+        max-width: -webkit-fill-available;
+        display: flex;
+        margin-right: 16px;
+        margin-left: 0px;
+        flex-direction: column;
+        gap: 18px;
+    }
+    .event-detail-container-right {
+        flex: 2 1;
+        width: 100%;
+    }
+    .event-detail-header {
+        background: #c3003c;
+        color: #fff;
+        font-weight: bold;
+        font-size: 15px;
+        padding: 5px;
+        border-top-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 20px;
+        border-bottom-left-radius: 0;
+        display: flex;
+        align-items: center;
+        min-width: 340px;
+    }
+    .event-detail-date {
+        font-size: 15px;
+        font-weight: 700;
+    }
+}
+
+@media (max-width:450px) {
+    .event-detail-header {
+        background: #c3003c;
+        color: #fff;
+        font-weight: bold;
+        font-size: 13px;
+        padding: 5px;
+        border-top-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 20px;
+        border-bottom-left-radius: 0;
+        display: flex;
+        align-items: center;
+        min-width: fit-content;
+        padding-right: 12px;
+    }
+    .event-detail-date {
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .event-detail-markets {
+        padding: 10px;
+        background-color: #f1f1f1;
+    }
 }

@@ -11,6 +11,7 @@
     margin: 0;
     padding-left: 18px;
     font-size: 25px;
+    text-transform: uppercase;
 }
 
 .rb-header {
