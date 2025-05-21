@@ -3,14 +3,6 @@ const db = require('../db/knex');
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
-    // Check if requester is admin or super_admin
-    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. Admin privileges required.'
-      });
-    }
-
     // Query to get all users with their wallet balances
     const usersResult = await db.raw(`
       SELECT 
@@ -18,11 +10,14 @@ exports.getAllUsers = async (req, res) => {
         u.user_id, 
         u.name, 
         u.phone, 
-        u.email, 
-        u.role, 
+        u.role,
+        u.parent_id,
         u.is_active, 
-        u.created_at,
+        u.profile_picture,
         u.last_login,
+        u.role_updated_at,
+        u.created_at,
+        u.updated_at,
         json_build_object(
           'current_balance', w.current_balance,
           'current_exposure', w.current_exposure
