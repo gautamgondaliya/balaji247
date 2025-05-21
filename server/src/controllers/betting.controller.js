@@ -524,9 +524,9 @@ exports.settleBet = async (req, res) => {
       // Mark bet as settled
       await trx.raw(`
         UPDATE bets 
-        SET bet_status = 'settled', updated_at = CURRENT_TIMESTAMP 
+        SET settlement_status = ?, updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?
-      `, [bet_id]);
+      `, [status, bet_id]);
 
       await trx.commit();
 
@@ -536,7 +536,7 @@ exports.settleBet = async (req, res) => {
         data: {
           bet: {
             id: bet_id,
-            status: 'settled',
+            settlement_status: status,
             result: status,
             win_amount: status === 'yes' ? potentialWin : 0,
             loss_amount: status === 'no' ? potentialLoss : 0
