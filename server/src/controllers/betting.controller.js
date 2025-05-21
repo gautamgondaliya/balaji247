@@ -596,38 +596,31 @@ exports.updateBetOdds = async (req, res) => {
 // Get all bets grouped by user
 exports.getAllBetsGroupedByUser = async (req, res) => {
   try {
-    // Get all users with their bets
-    const result = await db.raw(`
-      SELECT 
-        u.user_id, u.name, u.role, u.phone, 
-        json_agg(json_build_object(
-          'bet_id', b.id,
-          'market_id', b.match_id,
-          'stake', b.bet_amount,
-          'previous_bet_odds', b.previous_bet_odds,
-          'current_bet_odds', b.current_bet_odds,
-          'bet_type', b.bet_type,
-          'bet_category', b.bet_category,
-          'status', b.bet_status,
-          'created_at', b.created_at,
-          'updated_at', b.updated_at
-        ) ORDER BY b.created_at DESC) AS bets
-      FROM users u
-      LEFT JOIN bets b ON u.id = b.user_id
-      GROUP BY u.user_id, u.name, u.role, u.phone
-      ORDER BY u.user_id
-    `);
-
-    res.json({
+    // Get all users
+    const usersResult = await db.raw(`SELECT id, user_id, name FROM users`);
+    const users = usersResult.rows;
+    const groupedBets = [];
+    for (const user of users) {
+      const betsResult = await db.raw(
+        `SELECT * FROM bets WHERE user_id = ? ORDER BY created_at DESC`,
+        [user.id]
+      );
+      groupedBets.push({
+        user_id: user.user_id,
+        name: user.name,
+        bets: betsResult.rows
+      });
+    }
+    return res.json({
       success: true,
-      data: result.rows
+      data: groupedBets
     });
-  } catch (err) {
-    console.error('Get all bets grouped by user error:', err);
+  } catch (error) {
+    console.error('Get all bets grouped by user error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get bets grouped by user.',
-      error: err.message
+      error: error.message
     });
   }
 }; 
