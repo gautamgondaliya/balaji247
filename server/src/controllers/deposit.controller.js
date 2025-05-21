@@ -67,8 +67,8 @@ exports.getDepositRequestsByUser = async (req, res) => {
 
 exports.updateDepositRequestStatus = async (req, res) => {
   const { deposit_request_id, status } = req.body;
-  if (!deposit_request_id || !status || !['accepted', 'rejected'].includes(status)) {
-    return res.status(400).json({ success: false, message: 'deposit_request_id and valid status (accepted/rejected) are required.' });
+  if (!deposit_request_id || !status || !['accept', 'reject'].includes(status)) {
+    return res.status(400).json({ success: false, message: 'deposit_request_id and valid status (accept/reject) are required.' });
   }
   const trx = await db.transaction();
   try {
@@ -82,7 +82,7 @@ exports.updateDepositRequestStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Deposit request not found.' });
     }
     const deposit = depositResult.rows[0];
-    if (deposit.status === 'accepted' || deposit.status === 'rejected') {
+    if (deposit.status === 'accept' || deposit.status === 'reject') {
       await trx.rollback();
       return res.status(400).json({ success: false, message: 'Deposit request already processed.' });
     }
@@ -92,7 +92,7 @@ exports.updateDepositRequestStatus = async (req, res) => {
       [status, deposit_request_id]
     );
     // If accepted, add amount to user's wallet
-    if (status === 'accepted') {
+    if (status === 'accept') {
       // Get wallet
       const walletResult = await trx.raw(
         `SELECT * FROM wallets WHERE user_id = ? FOR UPDATE`,
@@ -110,7 +110,7 @@ exports.updateDepositRequestStatus = async (req, res) => {
       );
     }
     await trx.commit();
-    return res.json({ success: true, message: `Deposit request ${status}.` });
+    return res.json({ success: true, message: `Deposit request ${status}ed.` });
   } catch (error) {
     await trx.rollback();
     console.error('Update deposit request status error:', error);
