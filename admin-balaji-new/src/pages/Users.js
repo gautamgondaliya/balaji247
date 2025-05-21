@@ -4,17 +4,75 @@ import { userService } from '../utils/api';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// Mock data for testing when backend is not available
+const MOCK_USERS = [
+  {
+    id: 1,
+    user_id: 'user1',
+    name: 'John Doe',
+    phone: '9876543210',
+    email: 'john@example.com',
+    role: 'client',
+    is_active: true,
+    wallet: { current_balance: 1000, current_exposure: 200 }
+  },
+  {
+    id: 2,
+    user_id: 'user2',
+    name: 'Jane Smith',
+    phone: '9876543211',
+    email: 'jane@example.com',
+    role: 'client',
+    is_active: true,
+    wallet: { current_balance: 2000, current_exposure: 500 }
+  },
+  {
+    id: 3,
+    user_id: 'admin1',
+    name: 'Admin User',
+    phone: '9876543212',
+    email: 'admin@example.com',
+    role: 'admin',
+    is_active: true,
+    wallet: { current_balance: 5000, current_exposure: 0 }
+  }
+];
+
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [useMockData, setUseMockData] = useState(false);
   const usersPerPage = 10;
   
   // Fetch users on component mount
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Load mock data for testing
+  const loadMockData = () => {
+    const formattedUsers = MOCK_USERS.map((user, index) => ({
+      id: index + 1,
+      registrarId: user.id || 'N/A',
+      phone: user.phone || 'N/A',
+      userNo: user.user_id || 'N/A',
+      balance: user.wallet?.current_balance || '0',
+      exposure: user.wallet?.current_exposure || '0',
+      username: user.name || 'N/A',
+      email: user.email || 'N/A',
+      role: user.role || 'client',
+      is_active: user.is_active
+    }));
+    
+    setUsers(formattedUsers);
+    setUseMockData(true);
+    toast.info('Loaded test data. Backend connection not available.');
+  };
   
   const fetchUsers = async () => {
     try {
@@ -37,12 +95,22 @@ const Users = () => {
         }));
         
         setUsers(formattedUsers);
+        setUseMockData(false);
+        toast.success(`${formattedUsers.length} users loaded successfully`);
       } else {
-        toast.error('Failed to fetch users data');
+        toast.error(`Failed to fetch users: ${response.message || 'Unknown error'}`);
+        if (!useMockData) loadMockData();
       }
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast.error('Error fetching users data');
+      if (error.response?.status === 401) {
+        toast.error('Authentication error. Please log in again.');
+      } else if (error.response?.status === 403) {
+        toast.error('Access denied. You do not have permission to view users.');
+      } else {
+        toast.error(`Error fetching users: ${error.response?.data?.message || error.message || 'Network error'}`);
+        if (!useMockData) loadMockData();
+      }
     } finally {
       setLoading(false);
     }
@@ -66,14 +134,88 @@ const Users = () => {
     setCurrentPage(1);
   };
   
-  const updateUser = async (userId) => {
+  const updateUser = (userId) => {
+    const userToUpdate = users.find(user => user.userNo === userId);
+    setSelectedUser(userToUpdate);
+    setShowUserModal(true);
+  };
+  
+  const handleUserUpdate = async (e) => {
+    e.preventDefault();
+    
+    if (!selectedUser) return;
+    
     try {
-      // You can implement user update dialog/form here
-      console.log(`Update user with ID: ${userId}`);
-      toast.info('User update feature coming soon!');
+      setProcessing(true);
+      
+      const userData = {
+        name: selectedUser.username,
+        phone: selectedUser.phone,
+        email: selectedUser.email
+      };
+      
+      const response = await userService.updateUser(selectedUser.userNo, userData);
+      
+      if (response.success) {
+        toast.success('User updated successfully');
+        setShowUserModal(false);
+        fetchUsers(); // Refresh the list
+      } else {
+        toast.error(response.message || 'Failed to update user');
+      }
     } catch (error) {
       console.error('Error updating user:', error);
-      toast.error('Failed to update user');
+      toast.error('Error updating user');
+    } finally {
+      setProcessing(false);
+    }
+  };
+  
+  const handleToggleStatus = async (userId, currentStatus) => {
+    try {
+      setProcessing(true);
+      
+      const response = await userService.updateUserStatus(userId, !currentStatus);
+      
+      if (response.success) {
+        toast.success(`User ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+        
+        // Update the user in the local state
+        setUsers(users.map(user => 
+          user.userNo === userId ? { ...user, is_active: !currentStatus } : user
+        ));
+      } else {
+        toast.error(response.message || 'Failed to update user status');
+      }
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      toast.error('Error updating user status');
+    } finally {
+      setProcessing(false);
+    }
+  };
+  
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      setProcessing(true);
+      
+      const response = await userService.updateUserRole(userId, newRole);
+      
+      if (response.success) {
+        toast.success('User role updated successfully');
+        
+        // Update the user in the local state
+        setUsers(users.map(user => 
+          user.userNo === userId ? { ...user, role: newRole } : user
+        ));
+      } else {
+        toast.error(response.message || 'Failed to update user role');
+      }
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast.error('Error updating user role');
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -96,6 +238,18 @@ const Users = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
+  };
+  
+  const closeModal = () => {
+    setShowUserModal(false);
+    setSelectedUser(null);
+  };
+  
+  const handleUserInputChange = (field, value) => {
+    setSelectedUser({
+      ...selectedUser,
+      [field]: value
+    });
   };
 
   return (
@@ -121,8 +275,8 @@ const Users = () => {
         </div>
         
         <div className="filters">
-          <button className="filter-button" onClick={fetchUsers}>
-            <i className="fas fa-sync"></i> REFRESH
+          <button className="filter-button" onClick={fetchUsers} disabled={loading}>
+            <i className={`fas ${loading ? 'fa-spinner fa-spin' : 'fa-sync'}`}></i> REFRESH
           </button>
           <button className="filter-button">
             <i className="fas fa-filter"></i> FILTERS
@@ -150,7 +304,7 @@ const Users = () => {
                 <th>Exposure</th>
                 <th>Status</th>
                 <th>Role</th>
-                <th>Action</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -164,15 +318,31 @@ const Users = () => {
                     <td>{formatNumber(user.balance)}</td>
                     <td>{formatNumber(user.exposure)}</td>
                     <td>
-                      <span className={`status-badge ${user.is_active ? 'active' : 'inactive'}`}>
+                      <span 
+                        className={`status-badge ${user.is_active ? 'active' : 'inactive'}`}
+                        onClick={() => handleToggleStatus(user.userNo, user.is_active)}
+                        title={`Click to ${user.is_active ? 'deactivate' : 'activate'} user`}
+                      >
                         {user.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td>{user.role}</td>
+                    <td>
+                      <select 
+                        value={user.role}
+                        onChange={(e) => handleRoleChange(user.userNo, e.target.value)}
+                        className="role-select"
+                        disabled={processing}
+                      >
+                        <option value="client">Client</option>
+                        <option value="admin">Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                      </select>
+                    </td>
                     <td>
                       <button 
                         className="update-button"
                         onClick={() => updateUser(user.userNo)}
+                        disabled={processing}
                       >
                         UPDATE
                       </button>
@@ -223,6 +393,62 @@ const Users = () => {
           </button>
         </div>
       </div>
+      
+      {/* User Update Modal */}
+      {showUserModal && selectedUser && (
+        <div className="modal-overlay">
+          <div className="user-modal">
+            <div className="modal-header">
+              <h2>Update User: {selectedUser.username}</h2>
+              <button className="close-button" onClick={closeModal}>×</button>
+            </div>
+            <form onSubmit={handleUserUpdate}>
+              <div className="form-group">
+                <label>Username:</label>
+                <input 
+                  type="text"
+                  value={selectedUser.username}
+                  onChange={(e) => handleUserInputChange('username', e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Phone:</label>
+                <input 
+                  type="text"
+                  value={selectedUser.phone}
+                  onChange={(e) => handleUserInputChange('phone', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Email:</label>
+                <input 
+                  type="email"
+                  value={selectedUser.email}
+                  onChange={(e) => handleUserInputChange('email', e.target.value)}
+                />
+              </div>
+              <div className="modal-actions">
+                <button 
+                  type="button" 
+                  className="cancel-button"
+                  onClick={closeModal}
+                  disabled={processing}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="submit-button"
+                  disabled={processing}
+                >
+                  {processing ? <i className="fas fa-spinner fa-spin"></i> : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

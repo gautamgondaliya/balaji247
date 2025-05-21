@@ -1,88 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-// Components
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/auth/Login';
 import Dashboard from './pages/Dashboard';
+import Bets from './pages/Bets';
 import Users from './pages/Users';
 import Payments from './pages/Payments';
-import Cricket from './pages/Cricket';
 import Deposits from './pages/Deposits';
 import Withdrawals from './pages/Withdrawals';
-import ResultDeclaration from './pages/ResultDeclaration';
-import Bets from './pages/Bets';
-import Login from './pages/Login';
+import Layout from './components/Layout';
+import './App.css';
 
-// Auth Context
-import { AuthProvider, useAuth } from './context/AuthContext';
-
-// Wrapper component that uses the auth context
-const AppContent = () => {
-  const { isAuthenticated, login, logout, loading, user } = useAuth();
-  const [currentPage, setCurrentPage] = useState('dashboard');
-
-  // Function to render the current page
-  const renderPage = () => {
-    switch(currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'users':
-        return <Users />;
-      case 'payments':
-        return <Payments />;
-      case 'cricket':
-        return <Cricket />;
-      case 'deposits':
-        return <Deposits />;
-      case 'withdrawals':
-        return <Withdrawals />;
-      case 'results':
-        return <ResultDeclaration />;
-      case 'bets':
-        return <Bets />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
-    toast.info('Logged out successfully!', {
-      position: 'top-right',
-      autoClose: 2000,
-    });
-  };
-
-  if (loading) {
-    return <div className="loading-screen">Loading...</div>;
+// Protected Route component
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  
+  if (!token || !user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+    return <Navigate to="/login" replace />;
   }
-
-  if (!isAuthenticated) {
-    return <Login onLogin={login} />;
-  }
-
-  return (
-    <div className="App">
-      <Sidebar setCurrentPage={setCurrentPage} currentPage={currentPage} />
-      <div className="main-content">
-        <Header user={user} onLogout={handleLogout} />
-        <div className="page-container">
-          {renderPage()}
-        </div>
-      </div>
-      <ToastContainer />
-    </div>
-  );
+  
+  return <Layout>{children}</Layout>;
 };
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/bets" element={
+          <ProtectedRoute>
+            <Bets />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/users" element={
+          <ProtectedRoute>
+            <Users />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/payments" element={
+          <ProtectedRoute>
+            <Payments />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/deposits" element={
+          <ProtectedRoute>
+            <Deposits />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/withdrawals" element={
+          <ProtectedRoute>
+            <Withdrawals />
+          </ProtectedRoute>
+        } />
+        
+        {/* Redirect any unknown routes to dashboard */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </Router>
   );
 }
 

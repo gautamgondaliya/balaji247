@@ -13,15 +13,17 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: "*",
+  origin: ["balaji.dynexbet.com", "https://balajiadmin.dynexbet.com/"], // Add your client domains here
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true
 };
 
 app.use(express.json());
 app.use(cors(corsOptions));
 
+// Pre-flight requests
+app.options('*', cors(corsOptions));
 
 app.use('/api/event-details', getEventDetails);
 app.use('/api/cricket', getCricketData);

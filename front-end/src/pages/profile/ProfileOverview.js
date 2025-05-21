@@ -3,6 +3,21 @@ import './ProfileOverview.css';
 import { FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import ProfileImage from "../../assets/Images/profile_image.webp"
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+// Setup axios with authentication interceptor
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json'
+    }
+  };
+};
 
 const ProfileOverview = ({ standalone = false, initialTab = null }) => {
   const location = useLocation();
@@ -17,6 +32,77 @@ const ProfileOverview = ({ standalone = false, initialTab = null }) => {
     700: "700",
     8000: "8000"
   });
+  const [walletDetails, setWalletDetails] = useState({
+    current_balance: 0,
+    current_exposure: 0
+  });
+  const [userData, setUserData] = useState(null);
+  
+  // Check if user is logged in on component mount
+  useEffect(() => {
+    const userString = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    
+    if (userString && token) {
+      const user = JSON.parse(userString);
+      setUserData(user);
+      fetchWalletDetails(user.user_id);
+    }
+  }, []);
+
+  // Setup periodic wallet refresh
+  useEffect(() => {
+    let intervalId;
+    
+    if (userData) {
+      // Fetch immediately
+      fetchWalletDetails(userData.user_id);
+      
+      // Then setup interval (every 1 second)
+      intervalId = setInterval(() => {
+        fetchWalletDetails(userData.user_id);
+      }, 1000);
+    }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [userData]);
+
+  const fetchWalletDetails = async (userId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wallet/details/${userId}`, getAuthHeaders());
+      
+      if (response.data.success) {
+        setWalletDetails({
+          current_balance: response.data.data.wallet.current_balance || 0,
+          current_exposure: response.data.data.wallet.current_exposure || 0
+        });
+      } else {
+        console.error('Failed to fetch wallet details:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching wallet details:', error);
+      if (error.response?.status === 401) {
+        // Handle token expiration
+        toast.error('Session expired. Please login again.', {
+          position: "top-right",
+          autoClose: 3000
+        });
+        // Redirect to login or handle logout
+      }
+    }
+  };
+
+  // Format numbers with commas
+  const formatNumber = (num) => {
+    return parseFloat(num).toLocaleString('en-IN', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2
+    });
+  };
   
   useEffect(() => {
     // Check for initialTab prop
@@ -86,7 +172,7 @@ const ProfileOverview = ({ standalone = false, initialTab = null }) => {
           <div className="avatar-circle">
             <FaUser className="avatar-icon" />
           </div>
-          <h3 className="profile-username">DEMO746</h3>
+          <h3 className="profile-username">{userData?.name || userData?.user_id || 'DEMO746'}</h3>
         </div>
 
         <div className="profile-main">
@@ -97,57 +183,57 @@ const ProfileOverview = ({ standalone = false, initialTab = null }) => {
             >
               OVERVIEW
             </div>
-            <div 
+            {/* <div 
               className={`tab ${activeTab === 'STAKE SETTINGS' ? 'active' : ''}`}
               onClick={() => setActiveTab('STAKE SETTINGS')}
             >
               STAKE SETTINGS
-            </div>
-            <div 
+            </div> */}
+            {/* <div 
               className={`tab ${activeTab === 'CHANGE PASSWORD' ? 'active' : ''}`}
               onClick={() => setActiveTab('CHANGE PASSWORD')}
             >
               CHANGE PASSWORD
-            </div>
+            </div> */}
           </div>
 
           {activeTab === 'OVERVIEW' && (
             <div className="tab-content">
               <img src={ProfileImage} alt="profile_logo" className="peofile-image-logo" />
               <div className="welcome-message">
-                Welcome To Reddybook399, Demo746
+                Welcome To Balaji 247, {userData?.name || userData?.user_id || 'DEMO746'}
               </div>
 
               <div className="profile-details">
                 <div className="detail-row">
                   <div className="detail-label">User Id</div>
                   <div className="detail-separator">:</div>
-                  <div className="detail-value">Demo746</div>
+                  <div className="detail-value">{userData?.user_id || 'Demo746'}</div>
                 </div>
                 
                 <div className="detail-row">
                   <div className="detail-label">Available Chips</div>
                   <div className="detail-separator">:</div>
-                  <div className="detail-value">0</div>
+                  <div className="detail-value">{formatNumber(walletDetails.current_balance)}</div>
                 </div>
                 
                 <div className="detail-row">
                   <div className="detail-label">Exposure</div>
                   <div className="detail-separator">:</div>
-                  <div className="detail-value">500</div>
+                  <div className="detail-value">{formatNumber(walletDetails.current_exposure)}</div>
                 </div>
                 
                 <div className="detail-row">
                   <div className="detail-label">Total Chips</div>
                   <div className="detail-separator">:</div>
-                  <div className="detail-value">500</div>
+                  <div className="detail-value">{formatNumber(parseFloat(walletDetails.current_balance) + parseFloat(walletDetails.current_exposure))}</div>
                 </div>
                 
-                <div className="detail-row">
+                {/* <div className="detail-row">
                   <div className="detail-label">Profit/Loss</div>
                   <div className="detail-separator">:</div>
                   <div className="detail-value">0</div>
-                </div>
+                </div> */}
               </div>
             </div>
           )}

@@ -1,79 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Cricket.css';
 import '../styles/Payments.css';
 
+// Create axios instance with default config
+const api = axios.create({
+  baseURL: 'http://localhost:5000/api',
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 const Bets = () => {
-  const [bets, setBets] = useState([
-    {
-      id: 1,
-      userId: 4,
-      username: 'Rahul',
-      phone: '1234567890',
-      matchId: 1,
-      match: 'Chennai Super Kings v Rajasthan Royals',
-      betType: 'Match Odds',
-      selection: 'CSK',
-      amount: 5000,
-      odds: 1.95,
-      potentialWin: 9750,
-      status: 'PENDING',
-      date: '19 May 2025',
-      time: '18:45'
-    },
-    {
-      id: 2,
-      userId: 2,
-      username: 'Sanu',
-      phone: '8979066955',
-      matchId: 1,
-      match: 'Chennai Super Kings v Rajasthan Royals',
-      betType: 'Over Market',
-      selection: '6 OVER RUNS CSK > 50',
-      amount: 2000,
-      odds: 1.85,
-      potentialWin: 3700,
-      status: 'PENDING',
-      date: '19 May 2025',
-      time: '19:05'
-    },
-    {
-      id: 3,
-      userId: 3,
-      username: 'Raaz',
-      phone: '9752090369',
-      matchId: 2,
-      match: 'Mumbai Indians v Delhi Capitals',
-      betType: 'Match Odds',
-      selection: 'MI',
-      amount: 3000,
-      odds: 2.10,
-      potentialWin: 6300,
-      status: 'WON',
-      date: '18 May 2025',
-      time: '17:30'
-    },
-    {
-      id: 4,
-      userId: 1,
-      username: 'Abhishek',
-      phone: '9508535424',
-      matchId: 2,
-      match: 'Mumbai Indians v Delhi Capitals',
-      betType: 'Match Odds',
-      selection: 'DC',
-      amount: 2500,
-      odds: 1.75,
-      potentialWin: 4375,
-      status: 'LOST',
-      date: '18 May 2025',
-      time: '16:45'
-    }
-  ]);
-  
+  const navigate = useNavigate();
+  const [bets, setBets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [typeFilter, setTypeFilter] = useState('All Types');
   const [currentBetDetails, setCurrentBetDetails] = useState(null);
   const [isBetDetailsOpen, setIsBetDetailsOpen] = useState(false);
+  
+  // Add request interceptor to include token
+  api.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  // Add response interceptor to handle token errors
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 403 || error.response?.status === 401) {
+        localStorage.removeItem('token'); // Clear invalid token
+        navigate('/login'); // Redirect to login
+        return Promise.reject(new Error('Session expired. Please login again.'));
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  const fetchBets = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get('/betting/grouped/all');
+      
+      // Transform the API response into the required format
+      const transformedBets = response.data.data.flatMap(user => 
+        user.bets.map(bet => ({
+          id: bet.bet_id,
+          userId: user.user_id,
+          username: user.name,
+          phone: user.phone,
+          matchId: bet.market_id,
+          match: bet.market_id, // You might want to fetch match details separately
+          betType: bet.bet_type,
+          selection: bet.bet_category,
+          amount: parseFloat(bet.stake),
+          odds: parseFloat(bet.current_bet_odds),
+          potentialWin: parseFloat(bet.stake) * parseFloat(bet.current_bet_odds),
+          status: bet.status.toUpperCase(),
+          date: new Date(bet.created_at).toLocaleDateString(),
+          time: new Date(bet.created_at).toLocaleTimeString()
+        }))
+      );
+
+      setBets(transformedBets);
+    } catch (err) {
+      setError(err.message || 'Failed to fetch bets');
+      console.error('Error fetching bets:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    fetchBets();
+  }, [navigate]);
   
   // Filter bets based on status and type
   const filteredBets = bets.filter(bet => {
@@ -95,16 +114,30 @@ const Bets = () => {
     setIsBetDetailsOpen(true);
   };
   
-  const handleSetWin = (betId) => {
-    setBets(bets.map(bet => 
-      bet.id === betId ? { ...bet, status: 'WON' } : bet
-    ));
+  const handleSetWin = async (betId) => {
+    try {
+      await api.post(`/betting/${betId}/settle`, {
+        result_odds: currentBetDetails.odds,
+        win: true
+      });
+      await fetchBets(); // Refresh bets after update
+    } catch (err) {
+      setError(err.message || 'Failed to set bet as won');
+      console.error('Error setting bet as won:', err);
+    }
   };
   
-  const handleSetLoss = (betId) => {
-    setBets(bets.map(bet => 
-      bet.id === betId ? { ...bet, status: 'LOST' } : bet
-    ));
+  const handleSetLoss = async (betId) => {
+    try {
+      await api.post(`/betting/${betId}/settle`, {
+        result_odds: 0,
+        win: false
+      });
+      await fetchBets(); // Refresh bets after update
+    } catch (err) {
+      setError(err.message || 'Failed to set bet as lost');
+      console.error('Error setting bet as lost:', err);
+    }
   };
   
   const statusClass = (status) => {
@@ -116,13 +149,34 @@ const Bets = () => {
     }
   };
   
+  if (loading) {
+    return (
+      <div className="cricket-page">
+        <div className="loading-spinner">Loading bets...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="cricket-page">
+        <div className="error-message">
+          Error: {error}
+          <button onClick={fetchBets} className="retry-button">
+            <i className="fas fa-sync-alt"></i> Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="cricket-page">
       <div className="payment-management-header">
         <h1>
           <i className="fas fa-dice"></i> ALL BETS
         </h1>
-        <button className="refresh-button">
+        <button className="refresh-button" onClick={fetchBets}>
           <i className="fas fa-sync-alt"></i> Refresh
         </button>
       </div>

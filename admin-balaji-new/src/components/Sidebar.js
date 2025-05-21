@@ -1,49 +1,40 @@
 import React from 'react';
-import '../styles/Sidebar.css';
+import { useNavigate, useLocation } from 'react-router-dom';
+import './Sidebar.css';
 
-const Sidebar = ({ setCurrentPage, currentPage }) => {
-  const admin = {
-    email: 'fastbet@gmail.com',
-    role: 'Admin'
-  };
+const Sidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
 
-  // Menu items for the sidebar
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: 'home' },
-    { id: 'cricket', label: 'Cricket Market', icon: 'cricket-ball' },
-    { id: 'users', label: 'All Users', icon: 'users' },
-    { id: 'payments', label: 'Payment Management', icon: 'money-bill' },
-    { id: 'deposits', label: 'Deposits', icon: 'arrow-circle-down' },
-    { id: 'withdrawals', label: 'Withdrawals', icon: 'arrow-circle-up' },
-    { id: 'results', label: 'Result Declaration', icon: 'trophy' },
-    { id: 'bets', label: 'All Bets', icon: 'dice' },
-  
+    { path: '/dashboard', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+    { path: '/users', icon: 'fas fa-users', label: 'Users' },
+    { path: '/bets', icon: 'fas fa-dice', label: 'Bets' },
+    { path: '/payments', icon: 'fas fa-money-bill-wave', label: 'Payments' },
+    { path: '/deposits', icon: 'fas fa-arrow-circle-down', label: 'Deposits' },
+    { path: '/withdrawals', icon: 'fas fa-arrow-circle-up', label: 'Withdrawals' }
   ];
 
   return (
     <div className="sidebar">
-      <div className="admin-profile">
-        <div className="avatar-container">
-          <i className="fas fa-user avatar"></i>
-        </div>
-        <div className="admin-info">
-          <h3>{admin.email}</h3>
-          <p className="admin-role">{admin.role}</p>
-        </div>
+      <div className="logo">
+        <h2>BALAJI CRICKET</h2>
+        <p>Admin Panel</p>
       </div>
-      <div className="admin-access">Admin Access</div>
-      <ul className="nav-links">
+      
+      <nav className="menu">
         {menuItems.map((item) => (
-          <li key={item.id} className={currentPage === item.id ? 'active' : ''}>
-            <button 
-              onClick={() => setCurrentPage(item.id)}
-              className="nav-link"
-            >
-              <i className={`fas fa-${item.icon}`}></i> {item.label}
-            </button>
-          </li>
+          <button
+            key={item.path}
+            className={`menu-item ${currentPath === item.path ? 'active' : ''}`}
+            onClick={() => navigate(item.path)}
+          >
+            <i className={item.icon}></i>
+            <span>{item.label}</span>
+          </button>
         ))}
-      </ul>
+      </nav>
     </div>
   );
 };

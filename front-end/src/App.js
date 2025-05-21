@@ -27,6 +27,18 @@ function App() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Multi Market');
 
+  // useEffect(() => {
+  //   const handleContextMenu = (e) => {
+  //     e.preventDefault();
+  //   };
+
+  //   document.addEventListener("contextmenu", handleContextMenu);
+
+  //   return () => {
+  //     document.removeEventListener("contextmenu", handleContextMenu);
+  //   };
+  // }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLogin(true);

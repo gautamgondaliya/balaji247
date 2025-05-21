@@ -14,7 +14,7 @@ const api = axios.create({
 // Add a request interceptor to include auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -35,7 +35,7 @@ api.interceptors.response.use(
       // Handle token expiration
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      localStorage.removeItem('adminToken');
       
       // Redirect to login page if not already there
       if (window.location.pathname !== '/login') {
@@ -65,20 +65,57 @@ export const authService = {
 export const userService = {
   // Get all users
   getAllUsers: async () => {
-    const response = await api.get('/users');
-    return response.data;
+    try {
+      const response = await api.get('/users');
+      return response.data;
+    } catch (error) {
+      console.error('API Error - Get All Users:', error);
+      throw error;
+    }
   },
   
   // Get user by ID
   getUserById: async (userId) => {
-    const response = await api.get(`/users/${userId}`);
-    return response.data;
+    try {
+      const response = await api.get(`/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`API Error - Get User ${userId}:`, error);
+      throw error;
+    }
   },
   
   // Update user
   updateUser: async (userId, userData) => {
-    const response = await api.put(`/users/${userId}`, userData);
-    return response.data;
+    try {
+      const response = await api.put(`/users/${userId}`, userData);
+      return response.data;
+    } catch (error) {
+      console.error(`API Error - Update User ${userId}:`, error);
+      throw error;
+    }
+  },
+  
+  // Update user status
+  updateUserStatus: async (userId, isActive) => {
+    try {
+      const response = await api.patch(`/users/${userId}/status`, { is_active: isActive });
+      return response.data;
+    } catch (error) {
+      console.error(`API Error - Update User Status ${userId}:`, error);
+      throw error;
+    }
+  },
+  
+  // Update user role
+  updateUserRole: async (userId, role) => {
+    try {
+      const response = await api.patch(`/users/${userId}/role`, { role });
+      return response.data;
+    } catch (error) {
+      console.error(`API Error - Update User Role ${userId}:`, error);
+      throw error;
+    }
   },
   
   // Get user wallet details

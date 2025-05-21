@@ -2,7 +2,7 @@
     position: absolute;
     top: 60px;
     right: 0;
-    width: 250px;
+    width: 300px;
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -209,4 +209,207 @@
     border-radius: 0;
     border-left: none;
     border-right: none;
+}
+
+.account-dropdown-transaction-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    padding: 0 10px;
+}
+
+.account-dropdown-deposit-btn,
+.account-dropdown-withdraw-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48%;
+    transition: all 0.2s ease;
+}
+
+.account-dropdown-deposit-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.account-dropdown-withdraw-btn {
+    background-color: #f39c12;
+    color: white;
+}
+
+.account-dropdown-deposit-btn:hover {
+    background-color: #43a047;
+}
+
+.account-dropdown-withdraw-btn:hover {
+    background-color: #e67e22;
+}
+
+.account-dropdown-form {
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    margin: 10px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.form-submit-btn,
+.form-cancel-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.form-submit-btn {
+    background-color: #2196F3;
+    color: white;
+    flex-grow: 2;
+    margin-right: 5px;
+}
+
+.form-cancel-btn {
+    background-color: #e0e0e0;
+    color: #333;
+    flex-grow: 1;
+}
+
+.form-submit-btn:hover {
+background-color: #1976D2;
+}
+
+.form-cancel-btn:hover {
+background-color: #d0d0d0;
+}
+
+/* Deposit Account Details Button */
+.account-dropdown-details-button {
+padding: 0 10px;
+margin-bottom: 10px;
+}
+
+.account-dropdown-details-btn {
+width: 100%;
+padding: 8px 15px;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-weight: 600;
+display: flex;
+align-items: center;
+justify-content: center;
+background-color: #3498db;
+color: white;
+transition: all 0.2s ease;
+}
+
+.account-dropdown-details-btn:hover {
+background-color: #2980b9;
+}
+
+/* Account Details Popup */
+.account-details-popup {
+max-height: 350px;
+overflow-y: auto;
+}
+
+.account-details-content {
+margin-top: 10px;
+}
+
+.account-detail-item {
+display: flex;
+align-items: center;
+margin-bottom: 12px;
+padding-bottom: 8px;
+border-bottom: 1px solid #eee;
+}
+
+.account-detail-icon {
+font-size: 16px;
+color: #555;
+margin-right: 10px;
+min-width: 20px;
+}
+
+.account-detail-info {
+display: flex;
+flex-direction: column;
+flex: 1;
+}
+
+.account-detail-label {
+font-size: 11px;
+color: #666;
+margin-bottom: 2px;
+}
+
+.account-detail-value {
+font-size: 14px;
+font-weight: 600;
+color: #333;
+}
+
+.qr-code-container {
+text-align: center;
+margin-top: 10px;
+padding-top: 10px;
+border-top: 1px dashed #ddd;
+}
+
+.qr-code-container h4 {
+font-size: 14px;
+color: #333;
+margin-bottom: 10px;
+font-weight: 600;
+}
+
+.qr-code-image {
+display: flex;
+justify-content: center;
+margin: 10px 0;
+padding: 10px;
+background: white;
+border-radius: 8px;
+border: 1px solid #ddd;
 }

@@ -69,10 +69,10 @@ const Header = () => {
       // Fetch immediately
       fetchWalletDetails(userData.user_id);
       
-      // Then setup interval (every 30 seconds)
+      // Then setup interval (every 1 second)
       intervalId = setInterval(() => {
         fetchWalletDetails(userData.user_id);
-      }, 30000);
+      }, 1000);
     }
     
     return () => {

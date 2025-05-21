@@ -13,24 +13,40 @@ export const AuthProvider = ({ children }) => {
   // Check if user is already logged in on page load
   useEffect(() => {
     const checkAuthStatus = () => {
-      const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-      const token = localStorage.getItem('token');
-      const userData = JSON.parse(localStorage.getItem('user') || 'null');
-      
-      // Ensure both token and user data exist
-      if (authStatus && token && userData) {
-        setIsAuthenticated(true);
-        setUser(userData);
-      } else {
-        // Clear inconsistent auth state
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+      try {
+        const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+        const token = localStorage.getItem('adminToken'); // Use adminToken instead of token
+        
+        // Safely parse user data with error handling
+        let userData = null;
+        try {
+          const userStr = localStorage.getItem('user');
+          userData = userStr ? JSON.parse(userStr) : null;
+        } catch (err) {
+          console.error('Error parsing user data from localStorage:', err);
+          userData = null;
+        }
+        
+        // Ensure both token and user data exist
+        if (authStatus && token && userData) {
+          setIsAuthenticated(true);
+          setUser(userData);
+        } else {
+          // Clear inconsistent auth state
+          localStorage.removeItem('isAuthenticated');
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('user');
+          setIsAuthenticated(false);
+          setUser(null);
+        }
+      } catch (err) {
+        console.error('Error checking auth status:', err);
+        // Reset auth state on error
         setIsAuthenticated(false);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     checkAuthStatus();
@@ -39,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = (userData, token) => {
     localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('token', token);
+    localStorage.setItem('adminToken', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setIsAuthenticated(true);
     setUser(userData);
@@ -57,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       // Clear auth state regardless of API success
       localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('token');
+      localStorage.removeItem('adminToken');
       localStorage.removeItem('user');
       setIsAuthenticated(false);
       setUser(null);

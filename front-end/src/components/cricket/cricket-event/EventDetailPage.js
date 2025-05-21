@@ -87,15 +87,15 @@ const EventDetailPage = () => {
   }, [eventData, loading, error]);
 
   if (loading) {
-    return <div style={{ padding: 40, color: '#888' }}>Loading event details...</div>;
+    return <div className="loading-message">Loading event details...</div>;
   }
 
   if (error) {
-    return <div style={{ padding: 40, color: '#f44336' }}>Error: {error}</div>;
+    return <div className="error-message">Error: {error}</div>;
   }
 
   if (!eventData) {
-    return <div style={{ padding: 40, color: '#888' }}>Event not found.</div>;
+    return <div className="event-not-found-message">Event not found.</div>;
   }
 
   // Process and organize the data from the new API structure
@@ -260,7 +260,7 @@ const EventDetailPage = () => {
     return (
       <table className="odds-table">
         <thead>
-          <tr style={{ background: '#f7f8fa' }}>
+          <tr className="odds-table-header-row">
             <th>Selection</th>
             <th className="back">Back</th>
             <th className="lay">Lay</th>
@@ -465,7 +465,7 @@ const EventDetailPage = () => {
             <div className="market-header-no">NO</div>
             <div className="market-header-yes">YES</div>
           </div>
-          <div style={{ flex: 1 }}></div>
+          <div className="market-header-spacer"></div>
         </div>
       </div>
       {markets.map((market, idx) => (
@@ -515,35 +515,24 @@ const EventDetailPage = () => {
       ))}
     </div>
   );
-
+  
   // Render ODD_EVEN_MARKETS in custom style with header row
   const renderOddEvenMarkets = (markets) => (
-    <div style={{ marginBottom: 32 }}>
-      <div style={{ background: '#c3003c', color: '#fff', fontWeight: 700, fontSize: 20, padding: '10px 20px', borderTopLeftRadius: 6, borderTopRightRadius: 6, marginBottom: 0 }}>
+    <div className="odd-even-markets-container">
+      <div className="odd-even-markets-header">
         ODD EVEN MARKETS
       </div>
       {markets.map((market, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', background: '#fff', borderBottom: '1px solid #eee', padding: '18px 0 10px 0', position: 'relative' }}>
-          <div style={{ width: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 10 }}>
+        <div key={idx} className="odd-even-market-row">
+          <div className="odd-even-bookmark-container">
             <BookmarkIcon />
           </div>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ width: 300, fontWeight: 600, fontSize: 18, marginBottom: 8 }}>{market.mn}</div>
-            <div style={{ display: 'flex', minWidth: 220 }}>
+          <div className="odd-even-market-content">
+            <div className="odd-even-market-name">{market.mn}</div>
+            <div className="odd-even-odds-container">
               {/* Pink (lay) box */}
               <div 
-                style={{ 
-                  background: '#ffcdd2', 
-                  color: '#c3003c', 
-                  fontWeight: 700, 
-                  fontSize: 22, 
-                  padding: '10px 24px', 
-                  borderRadius: 6, 
-                  marginRight: 8, 
-                  textAlign: 'center', 
-                  minWidth: 100,
-                  cursor: 'pointer'
-                }}
+                className="odd-even-lay-box"
                 onClick={() => {
                   setSelectedMarketIndex(market.mi);
                   setSelectedBet({ 
@@ -559,21 +548,11 @@ const EventDetailPage = () => {
                 }}
               >
                 <div>{market.ry || '-'}</div>
-                <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.oy || 100}</div>
+                <div className="odd-even-volume">{market.oy || 100}</div>
               </div>
               {/* Blue (back) box */}
               <div 
-                style={{ 
-                  background: '#bbdefb', 
-                  color: '#1976d2', 
-                  fontWeight: 700, 
-                  fontSize: 14, 
-                  padding: '10px 24px', 
-                  borderRadius: 6, 
-                  textAlign: 'center', 
-                  minWidth: 100,
-                  cursor: 'pointer'
-                }}
+                className="odd-even-back-box"
                 onClick={() => {
                   setSelectedMarketIndex(market.mi);
                   setSelectedBet({ 
@@ -589,11 +568,11 @@ const EventDetailPage = () => {
                 }}
               >
                 <div>{market.rn || '-'}</div>
-                <div style={{ fontSize: 14, color: '#222', fontWeight: 400 }}>{market.on || 100}</div>
+                <div className="odd-even-volume">{market.on || 100}</div>
               </div>
             </div>
             {/* Max Bet/Market info */}
-            <div style={{ marginLeft: 32, color: '#222', fontSize: 15, fontWeight: 400, width: 200, textAlign: 'right' }}>
+            <div className="odd-even-market-info">
               <div>Max Bet: {market.mins || 100}</div>
               <div>Max Market: {market.mml || market.ms || 25000}</div>
             </div>
@@ -602,7 +581,7 @@ const EventDetailPage = () => {
       ))}
     </div>
   );
-
+  
   // Render OTHER_MARKETS in custom style with header row
   const renderOtherMarkets = (markets) => (
     <div className="market-section">
@@ -802,7 +781,7 @@ const EventDetailPage = () => {
                 isBallRunning(market) ? (
                   renderBallRunning()
                 ) : (
-                  <div className="odds-button-container" style={{ margin: '10px 0' }}>
+                  <div className="odds-button-container odds-button-container-with-margin">
                     {/* NO odds */}
                     <div className="odds-button-no"
                       onClick={() => {
@@ -828,7 +807,7 @@ const EventDetailPage = () => {
                   </div>
                 )
                )}
-              <div className="event-market-meta" style={{ marginLeft: '10px', textAlign: 'right' }}>
+              <div className="event-market-meta event-market-meta-right">
                 <div>Min: {market.mins || market.min_stake_limit || 100} | Max: {market.ms || market.max_bet || 100000}</div>
                 <div>Max Market: {market.mml || market.max_market_limit || 500000}</div>
               </div>

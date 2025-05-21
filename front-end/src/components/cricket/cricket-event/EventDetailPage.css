@@ -621,12 +621,14 @@
 }
 
 .market-header-row {
-    display: flex;
+        display: flex;
     align-items: center;
     background: #fff;
     border-bottom: 1px solid #eee;
     padding: 0 0 0 60px;
     min-height: 40px;
+    justify-content: flex-end;
+    
 }
 
 .market-header-content {
@@ -875,6 +877,168 @@
     }
 }
 
+@media (max-width:500px) {
+    /* Specific optimizations for Fall of Wicket, Other Markets and all betting sections */
+    .market-row {
+        padding: 8px 0 6px 0;
+    }
+    
+    .market-name {
+        width: 120px;
+        font-size: 14px;
+        margin-bottom: 4px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    
+    .market-bookmark-container {
+        width: 25px;
+        margin-left: 5px;
+    }
+    
+    /* Make odds buttons more compact with better touch targets */
+    .odds-button-no, .odds-button-yes {
+        font-size: 16px;
+        padding: 6px 8px;
+        min-width: 40px;
+    }
+    
+    .odds-button-container {
+        min-width: 90px;
+    }
+    
+    .odds-value {
+        font-weight: 700;
+        font-size: 15px;
+    }
+    
+    .odds-volume {
+        font-size: 11px;
+    }
+    
+    /* Fix market meta display for small screens */
+    .event-market-meta {
+        margin-left: 0 !important;
+        font-size: 11px;
+        padding-left: 30px;
+        text-align: left !important;
+        display: block;
+        width: 100%;
+        margin-top: 5px;
+    }
+    
+    /* Optimize the market headers */
+    .event-market-section-title {
+        font-size: 16px;
+        padding: 6px 10px;
+    }
+    
+    /* Market row specific improvements for OTHER MARKETS and ODD EVEN MARKETS */
+    .market-name-large {
+        width: 150px;
+        font-size: 14px;
+        line-height: 1.2;
+        white-space: normal;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Specific styles for the multi-line market names in ODD EVEN MARKETS */
+    [id^="odd_even_markets"] .market-name,
+    [id^="odd_even_markets"] .market-name-large {
+        width: 70px;
+        font-size: 11px;
+        line-height: 1.3;
+        white-space: normal;
+        height: auto;
+        margin-bottom: 0;
+        padding-right: 5px;
+        word-spacing: 100vw; /* Forces each word to a new line */
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+    
+    /* Optimize the layout for ODD EVEN MARKETS rows */
+    [id^="odd_even_markets"] .market-row {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+        padding: 15px 0;
+        border-bottom: 1px solid #eeeeee;
+        margin-bottom: 2px;
+    }
+    
+    [id^="odd_even_markets"] .market-content {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding-left: 0;
+        flex-wrap: nowrap;
+    }
+    
+    /* Reposition the bookmark icon */
+    [id^="odd_even_markets"] .market-bookmark-container {
+        width: 20px;
+        margin-right: 3px;
+        margin-left: 3px;
+    }
+    
+    /* Better meta info layout for Max Bet/Max Market in ODD EVEN MARKETS */
+    [id^="odd_even_markets"] .event-market-meta {
+        padding: 0;
+        margin: 0;
+        font-size: 9px;
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        width: 65px;
+        text-align: right !important;
+        line-height: 1.1;
+        white-space: normal;
+        color: #666;
+    }
+    
+    /* Make each market row position relative for absolute positioning */
+    [id^="odd_even_markets"] .market-row {
+        position: relative;
+    }
+    
+    /* Make the odds buttons better aligned with the text */
+    [id^="odd_even_markets"] .market-values-container,
+    [id^="odd_even_markets"] .odds-button-container {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 0;
+        margin-left: auto;
+        min-width: auto;
+    }
+    
+    /* Adjust the odds buttons size and appearance */
+    [id^="odd_even_markets"] .odds-button-no,
+    [id^="odd_even_markets"] .odds-button-yes {
+        font-size: 20px;
+        padding: 10px 15px;
+        min-width: 60px;
+        margin: 0 3px;
+        font-weight: 700;
+        text-align: center;
+        border-radius: 4px;
+    }
+    
+    /* Make volume text smaller */
+    [id^="odd_even_markets"] .odds-volume {
+        font-size: 10px;
+        margin-top: 2px;
+    }
+    
+    /* Enhance the overall market section layout */
+    .event-market-section {
+        margin-bottom: 1rem;
+    }
+}
+
 @media (max-width:450px) {
     .event-detail-header {
         background: #c3003c;
@@ -888,7 +1052,7 @@
         border-bottom-left-radius: 0;
         display: flex;
         align-items: center;
-        min-width: fit-content;
+        min-width: 20px;
         padding-right: 12px;
     }
     .event-detail-date {
@@ -899,4 +1063,154 @@
         padding: 10px;
         background-color: #f1f1f1;
     }
+}
+
+/* ODD EVEN MARKETS styles */
+.odd-even-markets-container {
+    margin-bottom: 32px;
+}
+
+.odd-even-markets-header {
+    background: #c3003c;
+    color: #fff;
+    font-weight: 700;
+    font-size: 20px;
+    padding: 10px 20px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin-bottom: 0;
+}
+
+.odd-even-market-row {
+    display: flex;
+    align-items: flex-start;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 18px 0 10px 0;
+    position: relative;
+}
+
+.odd-even-bookmark-container {
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.odd-even-market-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.odd-even-market-name {
+    width: 300px;
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.odd-even-odds-container {
+    display: flex;
+    min-width: 220px;
+}
+
+.odd-even-lay-box {
+    background: #ffcdd2;
+    color: #c3003c;
+    font-weight: 700;
+    font-size: 22px;
+    padding: 10px 24px;
+    border-radius: 6px;
+    margin-right: 8px;
+    text-align: center;
+    min-width: 40px;
+    cursor: pointer;
+}
+
+.odd-even-back-box {
+    background: #bbdefb;
+    color: #1976d2;
+    font-weight: 700;
+    font-size: 22px;
+    padding: 10px 24px;
+    border-radius: 6px;
+    text-align: center;
+    min-width: 40px;
+    cursor: pointer;
+}
+
+.odd-even-volume {
+    font-size: 14px;
+    color: #222;
+    font-weight: 400;
+}
+
+.odd-even-market-info {
+    margin-left: 32px;
+    color: #222;
+    font-size: 15px;
+    font-weight: 400;
+    width: 200px;
+    text-align: right;
+}
+
+/* For mobile responsiveness */
+@media (max-width: 768px) {
+    .odd-even-market-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .odd-even-market-name {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+    
+    .odd-even-odds-container {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .odd-even-market-info {
+        width: 100%;
+        margin-left: 0;
+        text-align: left;
+    }
+}
+
+/* Added classes for elements that previously used inline styles */
+.loading-message,
+.event-not-found-message {
+    padding: 40px;
+    color: #888;
+}
+
+.error-message {
+    padding: 40px;
+    color: #f44336;
+}
+
+.odds-table-header-row {
+    background: #f7f8fa;
+}
+
+.market-header-spacer {
+    flex: 1;
+}
+
+.market-header-label-wide {
+    width: 280px;
+}
+
+.odds-button-container-with-margin {
+    margin: 10px 0;
+}
+
+.event-market-meta-right {
+    margin-left: 10px;
+    text-align: right;
 }
