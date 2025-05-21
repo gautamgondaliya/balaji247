@@ -253,13 +253,38 @@ exports.getBetDetails = async (req, res) => {
 // Get user's betting history
 exports.getUserBets = async (req, res) => {
   try {
-    // Implementation will go here
-  } catch (err) {
-    console.error('Get user bets error:', err);
+    // Accept user_id as query or route param
+    const user_id = req.query.user_id || req.params.user_id;
+    if (!user_id) {
+      return res.status(400).json({ success: false, message: 'user_id is required' });
+    }
+
+    // Get internal user id
+    const userIdResult = await db.raw(
+      `SELECT id FROM users WHERE user_id = ? LIMIT 1`,
+      [user_id]
+    );
+    if (!userIdResult.rows.length) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+    const internalUserId = userIdResult.rows[0].id;
+
+    // Get all bets for this user, order by created_at desc
+    const betsResult = await db.raw(
+      `SELECT * FROM bets WHERE user_id = ? ORDER BY created_at DESC`,
+      [internalUserId]
+    );
+
+    return res.json({
+      success: true,
+      data: betsResult.rows
+    });
+  } catch (error) {
+    console.error('Get user bets error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get user bets.',
-      error: err.message
+      error: error.message
     });
   }
 };
