@@ -150,7 +150,11 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         bet_type: selectedBet.odd.type, // 'back', 'lay', 'yes', or 'no'
         odds: selectedBet.odd.price,
         market_id: selectedBet.market.id || selectedBet.market.mn,
-        bet_category: selectedBet.market.category || 'cricket'
+        bet_category: selectedBet.market.category || 'cricket',
+        yes_run: selectedBet.market.ry || 0,
+        yes_odd: selectedBet.market.oy || 0,
+        no_run: selectedBet.market.rn || 0,
+        no_odd: selectedBet.market.on || 0
       };
 
       // Send request to place bet with auth headers
