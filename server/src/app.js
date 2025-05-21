@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth.routes');
 const walletRoutes = require('./routes/wallet.routes');
 const bettingRoutes = require('./routes/betting.routes');
 const usersRoutes = require('./routes/users.routes');
+const depositRoutes = require('./routes/deposit.routes');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/betting', bettingRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/deposit', depositRoutes);
 
 // No API routes
 
