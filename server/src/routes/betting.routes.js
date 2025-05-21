@@ -22,6 +22,6 @@ router.post('/:bet_id/cancel', authenticateToken, bettingController.cancelBet);
 router.post('/:bet_id/odds', authenticateToken, bettingController.updateBetOdds);
 
 // Settle a bet
-router.post('/:bet_id/settle', authenticateToken, bettingController.settleBet);
+router.post('/settle', authenticateToken, bettingController.settleBet);
 
 module.exports = router; 
