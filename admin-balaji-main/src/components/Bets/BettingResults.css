@@ -1,0 +1,281 @@
+/* BettingResults Component Styles */
+
+.results-title {
+  font-weight: bold;
+  color: #1a237e;
+  margin-bottom: 1rem;
+}
+
+.bet-summary-card {
+  background-color: #f0f7ff;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-left: 4px solid #1976d2;
+  width: 100%;
+  overflow: hidden;
+}
+
+.bet-summary-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.bet-summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.bet-summary-label {
+  font-weight: 500;
+  color: #555;
+}
+
+.bet-summary-value {
+  font-weight: 600;
+}
+
+.bet-summary-value.total {
+  color: #1976d2;
+  font-size: 1.1rem;
+}
+
+.bet-summary-value.win {
+  color: #2e7d32;
+}
+
+.bet-summary-value.loss {
+  color: #d32f2f;
+}
+
+.bet-filter-button-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  color: #1a237e;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+/* Table improvements to fix horizontal scrolling */
+.table-container {
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+  display: block;
+}
+
+/* Set table to 100% width and control column widths */
+.table-container table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+}
+
+/* Set specific widths for columns to prevent overflow */
+.table-container th:nth-child(1), 
+.table-container td:nth-child(1) {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+}
+
+.table-container th:nth-child(2), 
+.table-container td:nth-child(2) {
+  width: 80px;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+.table-container th:nth-child(3), 
+.table-container td:nth-child(3) {
+  width: 80px;
+  min-width: 80px;
+}
+
+.table-container th:nth-child(4), 
+.table-container td:nth-child(4) {
+  width: 80px;
+  min-width: 80px;
+}
+
+.table-container th:nth-child(5), 
+.table-container td:nth-child(5) {
+  width: 15%;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Money columns - keep them narrow */
+.table-container th:nth-child(6), 
+.table-container td:nth-child(6),
+.table-container th:nth-child(7), 
+.table-container td:nth-child(7),
+.table-container th:nth-child(8), 
+.table-container td:nth-child(8) {
+  width: 80px;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+/* Bet type, runs, odd type */
+.table-container th:nth-child(9), 
+.table-container td:nth-child(9),
+.table-container th:nth-child(10), 
+.table-container td:nth-child(10),
+.table-container th:nth-child(11), 
+.table-container td:nth-child(11) {
+  width: 60px;
+  min-width: 60px;
+  white-space: nowrap;
+}
+
+/* Status */
+.table-container th:nth-child(12), 
+.table-container td:nth-child(12) {
+  width: 80px;
+  min-width: 80px;
+}
+
+/* Actions */
+.table-container th:nth-child(13), 
+.table-container td:nth-child(13) {
+  width: 120px;
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+.header-row {
+  background-color: #f5f5f5;
+}
+
+.table-header-cell {
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Ensure cells don't wrap excessively */
+.table-container td {
+  padding: 8px 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Style the buttons */
+.win-button {
+  background-color: #4caf50;
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  min-width: 50px;
+}
+
+.win-button:hover {
+  background-color: #388e3c;
+}
+
+.loss-button {
+  background-color: #f44336;
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  min-width: 50px;
+}
+
+.loss-button:hover {
+  background-color: #d32f2f;
+}
+
+.selected-row {
+  background-color: rgba(25, 118, 210, 0.08);
+}
+
+.dialog-content {
+  min-width: 400px;
+}
+
+.dialog-bet-details {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.dialog-bet-detail-item {
+  margin-bottom: 0.5rem;
+}
+
+.dialog-bet-detail-item strong {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.settlement-summary {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  background-color: #e8f4fd;
+  border-left: 4px solid #1976d2;
+}
+
+.win-summary {
+  background-color: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.loss-summary {
+  background-color: #ffebee;
+  border-left: 4px solid #f44336;
+}
+
+.refresh-button {
+  margin-left: auto;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .table-container td,
+  .table-container th {
+    padding: 8px 4px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .bet-filter-button-group {
+    flex-wrap: wrap;
+  }
+  
+  .refresh-button {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .bet-summary-card .MuiGrid-item {
+    flex-basis: 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 600px) {
+  .bet-summary-card .MuiGrid-item {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
+}

@@ -20,14 +20,28 @@ import {
   DialogTitle,
   Checkbox,
   FormControlLabel,
+  Grid,
+  Card,
+  CardContent,
+  Divider
 } from '@mui/material';
 import axios from 'axios';
 import DashboardLayout from '../Layout/DashboardLayout';
+import './BettingResults.css';
 
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const BettingResults = () => {
   const [pendingBets, setPendingBets] = useState([]);
+  const [backLayBets, setBackLayBets] = useState([]);
+  const [yesNoBets, setYesNoBets] = useState([]);
+  const [activeView, setActiveView] = useState('all'); // 'all', 'backlay', or 'yesno'
+  const [betSummary, setBetSummary] = useState({
+    totalBets: 0,
+    totalAmount: 0,
+    totalPotentialWin: 0,
+    totalPotentialLoss: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -91,6 +105,37 @@ const BettingResults = () => {
           return new Date(b.created_at) - new Date(a.created_at);
         });
         
+        // Separate bets into two groups based on bet type
+        const backLayGroup = sortedBets.filter(bet => 
+          (bet.bet_type?.toLowerCase() === 'back' || 
+          bet.bet_type?.toLowerCase() === 'lay') &&
+          !(bet.current_bet_name?.toLowerCase().includes('yes') || 
+            bet.current_bet_name?.toLowerCase().includes('no'))
+        );
+        
+        // Filter for Yes/No bets more comprehensively
+        const yesNoGroup = sortedBets.filter(bet => 
+          // Check in multiple fields for yes/no indicators
+          bet.current_bet_name?.toLowerCase().includes('yes') || 
+          bet.current_bet_name?.toLowerCase().includes('no') ||
+          bet.odd_type?.toLowerCase() === 'yes' || 
+          bet.odd_type?.toLowerCase() === 'no'
+        );
+        
+        // Calculate summary statistics
+        const totalAmount = sortedBets.reduce((sum, bet) => sum + parseFloat(bet.amount || 0), 0);
+        const totalPotentialWin = sortedBets.reduce((sum, bet) => sum + parseFloat(bet.potential_win || 0), 0);
+        const totalPotentialLoss = sortedBets.reduce((sum, bet) => sum + parseFloat(bet.potential_loss || 0), 0);
+        
+        setBetSummary({
+          totalBets: sortedBets.length,
+          totalAmount,
+          totalPotentialWin,
+          totalPotentialLoss
+        });
+        
+        setBackLayBets(backLayGroup);
+        setYesNoBets(yesNoGroup);
         setPendingBets(sortedBets);
         // Reset selections when data changes
         setSelectedBets([]);
@@ -294,24 +339,85 @@ const BettingResults = () => {
   return (
     <DashboardLayout>
       <Box sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1a237e' }}>
+        <Typography variant="h4" gutterBottom className="results-title">
           Results Declaration
         </Typography>
         
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        {/* Bet Summary Card */}
+        <Card className="bet-summary-card" elevation={2}>
+          <CardContent>
+            <Typography className="bet-summary-title" variant="h6">Bet Summary</Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={3}>
+                <div className="bet-summary-item">
+                  <span className="bet-summary-label">Total Bets:</span>
+                  <span className="bet-summary-value total">{betSummary.totalBets}</span>
+                </div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <div className="bet-summary-item">
+                  <span className="bet-summary-label">Total Amount:</span>
+                  <span className="bet-summary-value total">₹{betSummary.totalAmount.toLocaleString()}</span>
+                </div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <div className="bet-summary-item">
+                  <span className="bet-summary-label">Potential Win:</span>
+                  <span className="bet-summary-value win">₹{betSummary.totalPotentialWin.toLocaleString()}</span>
+                </div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <div className="bet-summary-item">
+                  <span className="bet-summary-label">Potential Loss:</span>
+                  <span className="bet-summary-value loss">₹{betSummary.totalPotentialLoss.toLocaleString()}</span>
+                </div>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+        
+        <Box sx={{ mb: 2 }}>
           <Typography variant="h6" component="h2">
-            Pending Bets ({pendingBets.length})
+            Pending Bets ({pendingBets.length}) - Back/Lay: {backLayBets.length}, Yes/No: {yesNoBets.length}
           </Typography>
+        </Box>
+        
+        <div className="bet-filter-button-group">
+          <Button
+            variant="contained"
+            className={activeView === 'all' ? 'active' : ''}
+            color={activeView === 'all' ? 'secondary' : 'primary'}
+            onClick={() => setActiveView('all')}
+          >
+            ALL BETS
+          </Button>
+          <Button
+            variant="contained"
+            className={activeView === 'backlay' ? 'active' : ''}
+            color={activeView === 'backlay' ? 'secondary' : 'primary'}
+            onClick={() => setActiveView('backlay')}
+          >
+            BACK/LAY
+          </Button>
+          <Button
+            variant="contained"
+            className={activeView === 'yesno' ? 'active' : ''}
+            color={activeView === 'yesno' ? 'secondary' : 'primary'}
+            onClick={() => setActiveView('yesno')}
+          >
+            YES/NO
+          </Button>
           <Button
             variant="contained"
             color="primary"
+            className="refresh-button"
             onClick={fetchBets}
             startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
             disabled={loading}
           >
-            {loading ? 'Refreshing...' : 'Refresh Bets'}
+            {loading ? 'REFRESHING...' : 'REFRESH BETS'}
           </Button>
-        </Box>
+        </div>
         
         <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
           {loading && pendingBets.length === 0 ? (
@@ -354,79 +460,194 @@ const BettingResults = () => {
                 </Box>
               </Box>
 
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={selectAll}
-                          onChange={handleSelectAll}
-                          indeterminate={selectedBets.length > 0 && selectedBets.length < pendingBets.length}
-                        />
-                      </TableCell>
-                      <TableCell><Typography variant="subtitle2">Date</Typography></TableCell>
-                      <TableCell><Typography variant="subtitle2">User ID</Typography></TableCell>
-                      <TableCell><Typography variant="subtitle2">Market ID</Typography></TableCell>
-                      <TableCell><Typography variant="subtitle2">Bet Details</Typography></TableCell>
-                      <TableCell><Typography variant="subtitle2">Amount</Typography></TableCell>
-                      <TableCell><Typography variant="subtitle2">Bet Type</Typography></TableCell>
-                      <TableCell><Typography variant="subtitle2">Runs</Typography></TableCell>
-                      <TableCell><Typography variant="subtitle2">Odd Type</Typography></TableCell>
-                      <TableCell><Typography variant="subtitle2">Status</Typography></TableCell>
-                      <TableCell><Typography variant="subtitle2">Actions</Typography></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {pendingBets.map((bet) => (
-                      <TableRow 
-                        key={bet.id} 
-                        hover
-                        selected={selectedBets.includes(bet.id)}
-                      >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            checked={selectedBets.includes(bet.id)}
-                            onChange={() => handleSelectBet(bet.id)}
-                          />
-                        </TableCell>
-                        <TableCell>{formatDate(bet.created_at)}</TableCell>
-                        <TableCell>
-                          {bet.display_user_id || 'N/A'}
-                        </TableCell>
-                        <TableCell>{bet.market_id}</TableCell>
-                        <TableCell>{bet.current_bet_name || 'N/A'}</TableCell>
-                        <TableCell>₹{parseFloat(bet.amount).toLocaleString()}</TableCell>
-                        <TableCell>{bet.bet_type}</TableCell>
-                        <TableCell>{bet.runs}</TableCell>
-                        <TableCell>{bet.odd_type}</TableCell>
-                        <TableCell>{bet.settlement_status}</TableCell>
-                        <TableCell>
-                          <Box>
-                            <Button 
-                              variant="contained" 
-                              color="success" 
-                              size="small" 
-                              onClick={() => handleOpenDialog(bet, 'win')}
-                              sx={{ mr: 1 }}
-                            >
-                              Win
-                            </Button>
-                            <Button 
-                              variant="contained" 
-                              color="error" 
-                              size="small"
-                              onClick={() => handleOpenDialog(bet, 'loss')}
-                            >
-                              Loss
-                            </Button>
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              {/* Table for Back/Lay Bets */}
+              {backLayBets.length > 0 && (activeView === 'all' || activeView === 'backlay') && (
+                <>
+                  <Typography variant="h6" className="section-title">
+                    Back/Lay Bets
+                  </Typography>
+                  <TableContainer className="table-container">
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={backLayBets.every(bet => selectedBets.includes(bet.id))}
+                              onChange={() => {
+                                const allBackLayIds = backLayBets.map(bet => bet.id);
+                                if (allBackLayIds.every(id => selectedBets.includes(id))) {
+                                  setSelectedBets(selectedBets.filter(id => !allBackLayIds.includes(id)));
+                                } else {
+                                  setSelectedBets([...new Set([...selectedBets, ...allBackLayIds])]);
+                                }
+                              }}
+                              indeterminate={backLayBets.some(bet => selectedBets.includes(bet.id)) && !backLayBets.every(bet => selectedBets.includes(bet.id))}
+                            />
+                          </TableCell>
+                          <TableCell><Typography variant="subtitle2">Date</Typography></TableCell>
+                          {/* <TableCell><Typography variant="subtitle2">User ID</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Market ID</Typography></TableCell> */}
+                          <TableCell><Typography variant="subtitle2">Bet Details</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Amount</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Potential Win</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Potential Loss</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Bet Type</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Runs</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Odd Type</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Status</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Actions</Typography></TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {backLayBets.map((bet) => (
+                          <TableRow 
+                            key={bet.id} 
+                            hover
+                            selected={selectedBets.includes(bet.id)}
+                          >
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                checked={selectedBets.includes(bet.id)}
+                                onChange={() => handleSelectBet(bet.id)}
+                              />
+                            </TableCell>
+                            <TableCell>{formatDate(bet.created_at)}</TableCell>
+                            {/* <TableCell>{bet.display_user_id || bet.user_id}</TableCell>
+                            <TableCell>{bet.market_id}</TableCell> */}
+                            <TableCell>{bet.current_bet_name || 'N/A'}</TableCell>
+                            <TableCell>₹{parseFloat(bet.amount || 0).toLocaleString()}</TableCell>
+                            <TableCell>₹{parseFloat(bet.potential_win || 0).toLocaleString()}</TableCell>
+                            <TableCell>₹{parseFloat(bet.potential_loss || 0).toLocaleString()}</TableCell>
+                            <TableCell><strong>{bet.bet_type}</strong></TableCell>
+                            <TableCell>{bet.runs}</TableCell>
+                            <TableCell>{bet.odd_type}</TableCell>
+                            <TableCell>{bet.settlement_status}</TableCell>
+                            <TableCell>
+                              <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="success"
+                                  onClick={() => handleOpenDialog(bet, 'win')}
+                                >
+                                  Win
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleOpenDialog(bet, 'loss')}
+                                >
+                                  Loss
+                                </Button>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </>
+              )}
+
+              {/* Table for Yes/No Bets */}
+              {yesNoBets.length > 0 && (activeView === 'all' || activeView === 'yesno') && (
+                <>
+                  <Typography variant="h6" className="section-title">
+                    Yes/No Bets
+                  </Typography>
+                  <TableContainer className="table-container">
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={yesNoBets.every(bet => selectedBets.includes(bet.id))}
+                              onChange={() => {
+                                const allYesNoIds = yesNoBets.map(bet => bet.id);
+                                if (allYesNoIds.every(id => selectedBets.includes(id))) {
+                                  setSelectedBets(selectedBets.filter(id => !allYesNoIds.includes(id)));
+                                } else {
+                                  setSelectedBets([...new Set([...selectedBets, ...allYesNoIds])]);
+                                }
+                              }}
+                              indeterminate={yesNoBets.some(bet => selectedBets.includes(bet.id)) && !yesNoBets.every(bet => selectedBets.includes(bet.id))}
+                            />
+                          </TableCell>
+                          <TableCell><Typography variant="subtitle2">Date</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">User ID</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Market ID</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Bet Details</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Amount</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Potential Win</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Potential Loss</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Bet Type</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Runs</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Odd Type</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Status</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Actions</Typography></TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {yesNoBets.map((bet) => (
+                          <TableRow 
+                            key={bet.id} 
+                            hover
+                            selected={selectedBets.includes(bet.id)}
+                          >
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                checked={selectedBets.includes(bet.id)}
+                                onChange={() => handleSelectBet(bet.id)}
+                              />
+                            </TableCell>
+                            <TableCell>{formatDate(bet.created_at)}</TableCell>
+                            <TableCell>{bet.display_user_id || bet.user_id}</TableCell>
+                            <TableCell>{bet.market_id}</TableCell>
+                            <TableCell>{bet.current_bet_name || 'N/A'}</TableCell>
+                            <TableCell>₹{parseFloat(bet.amount || 0).toLocaleString()}</TableCell>
+                            <TableCell>₹{parseFloat(bet.potential_win || 0).toLocaleString()}</TableCell>
+                            <TableCell>₹{parseFloat(bet.potential_loss || 0).toLocaleString()}</TableCell>
+                            <TableCell><strong>{bet.bet_type}</strong></TableCell>
+                            <TableCell>{bet.runs}</TableCell>
+                            <TableCell><strong>{bet.odd_type}</strong></TableCell>
+                            <TableCell>{bet.settlement_status}</TableCell>
+                            <TableCell>
+                              <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="success"
+                                  onClick={() => handleOpenDialog(bet, 'win')}
+                                >
+                                  Win
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleOpenDialog(bet, 'loss')}
+                                >
+                                  Loss
+                                </Button>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </>
+              )}
+              
+              {/* No bets found message */}
+              {((activeView === 'all' && backLayBets.length === 0 && yesNoBets.length === 0) ||
+                (activeView === 'backlay' && backLayBets.length === 0) ||
+                (activeView === 'yesno' && yesNoBets.length === 0)) && (
+                <Typography variant="body1" sx={{ textAlign: 'center', p: 3 }}>
+                  No bets found in either category
+                </Typography>
+              )}
             </>
           )}
         </Paper>
@@ -435,36 +656,70 @@ const BettingResults = () => {
         <Dialog
           open={openDialog}
           onClose={handleCloseDialog}
+          maxWidth="md"
         >
           <DialogTitle>
             {settlementType === 'win' ? 'Mark Bet as Winner' : 'Mark Bet as Loser'}
           </DialogTitle>
-          <DialogContent>
+          <DialogContent className="dialog-content">
             <DialogContentText>
               Are you sure you want to mark this bet as a {settlementType === 'win' ? 'winner' : 'loser'}?
-              <Box mt={2}>
-                <Typography variant="body2">
+              
+              <div className="dialog-bet-details">
+                <div className="dialog-bet-detail-item">
                   <strong>User ID:</strong> {currentBet?.display_user_id || currentBet?.user_id || 'N/A'}
-                </Typography>
-                <Typography variant="body2">
+                </div>
+                <div className="dialog-bet-detail-item">
                   <strong>Market ID:</strong> {currentBet?.market_id}
-                </Typography>
-                <Typography variant="body2">
+                </div>
+                <div className="dialog-bet-detail-item">
                   <strong>Bet Details:</strong> {currentBet?.current_bet_name || 'N/A'}
-                </Typography>
-                <Typography variant="body2">
+                </div>
+                <div className="dialog-bet-detail-item">
                   <strong>Amount:</strong> ₹{parseFloat(currentBet?.amount || 0).toLocaleString()}
-                </Typography>
-                <Typography variant="body2">
+                </div>
+                <div className="dialog-bet-detail-item">
                   <strong>Bet Type:</strong> {currentBet?.bet_type}
-                </Typography>
-                <Typography variant="body2">
+                </div>
+                <div className="dialog-bet-detail-item">
                   <strong>Runs:</strong> {currentBet?.runs}
-                </Typography>
-                <Typography variant="body2">
+                </div>
+                <div className="dialog-bet-detail-item">
                   <strong>Odd Type:</strong> {currentBet?.odd_type}
+                </div>
+              </div>
+              
+              <div className={`settlement-summary ${settlementType === 'win' ? 'win-summary' : 'loss-summary'}`}>
+                <Typography variant="subtitle1" gutterBottom>
+                  {settlementType === 'win' ? 'Win Settlement Summary' : 'Loss Settlement Summary'}
                 </Typography>
-              </Box>
+                <Divider sx={{ mb: 1.5 }} />
+                <div className="dialog-bet-detail-item">
+                  <strong>Original Bet Amount:</strong> ₹{parseFloat(currentBet?.amount || 0).toLocaleString()}
+                </div>
+                {settlementType === 'win' ? (
+                  <div className="dialog-bet-detail-item">
+                    <strong>Win Amount:</strong> ₹{parseFloat(currentBet?.potential_win || 0).toLocaleString()}
+                  </div>
+                ) : (
+                  <div className="dialog-bet-detail-item">
+                    <strong>Loss Amount:</strong> ₹{parseFloat(currentBet?.potential_loss || 0).toLocaleString()}
+                  </div>
+                )}
+                <Divider sx={{ my: 1 }} />
+                <div className="dialog-bet-detail-item">
+                  <strong>Final Settlement:</strong> 
+                  {settlementType === 'win' ? (
+                    <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>
+                      ₹{parseFloat(currentBet?.potential_win || 0).toLocaleString()}
+                    </span>
+                  ) : (
+                    <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>
+                      -₹{parseFloat(currentBet?.potential_loss || 0).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              </div>
             </DialogContentText>
           </DialogContent>
           <DialogActions>
