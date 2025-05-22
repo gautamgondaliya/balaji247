@@ -45,7 +45,6 @@ exports.placeBet = async (req, res) => {
       let potentialLoss = 0;
       let oddType = null;
       let runs = null;
-      let selection = null;
 
       // Calculate liability and potential win/loss based on bet type
       if (bet_type === 'yes') {
@@ -77,7 +76,6 @@ exports.placeBet = async (req, res) => {
           return res.status(400).json({ success: false, message: 'odds is required and must be a number for BACK bets.' });
         }
         oddType = betOdds;
-        selection = req.body.selection || req.body.team_id || null;
         liability = stake;
         potentialWin = stake * (betOdds - 1);
         potentialLoss = liability;
@@ -88,7 +86,6 @@ exports.placeBet = async (req, res) => {
           return res.status(400).json({ success: false, message: 'odds is required and must be a number for LAY bets.' });
         }
         oddType = betOdds;
-        selection = req.body.selection || req.body.team_id || null;
         liability = stake * (betOdds - 1);
         potentialWin = stake;
         potentialLoss = liability;
@@ -191,7 +188,7 @@ exports.placeBet = async (req, res) => {
       }
 
       // --- BACK/LAY Reverse Betting Logic ---
-      if ((bet_type === 'back' || bet_type === 'lay') && selection) {
+      if ((bet_type === 'back' || bet_type === 'lay') && runs !== undefined && runs !== null) {
         const oppositeType = bet_type === 'back' ? 'lay' : 'back';
         const betOdds = parseFloat(odds);
         let remainingAmount = stake;
@@ -201,8 +198,8 @@ exports.placeBet = async (req, res) => {
 
         // Find all active opposite bets for same user, market, selection
         const oppositeBetsResult = await trx.raw(
-          `SELECT * FROM bets WHERE user_id = ? AND market_id = ? AND selection = ? AND bet_type = ? AND amount > 0 ORDER BY created_at ASC`,
-          [internalUserId, market_id, selection, oppositeType]
+          `SELECT * FROM bets WHERE user_id = ? AND market_id = ? AND bet_type = ? AND amount > 0 ORDER BY created_at ASC`,
+          [internalUserId, market_id, oppositeType]
         );
         const oppositeBets = oppositeBetsResult.rows;
 
@@ -266,9 +263,9 @@ exports.placeBet = async (req, res) => {
           newBalance -= finalLiability;
           newExposure += finalLiability;
           await trx.raw(
-            `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection, potential_win, potential_loss, current_bet_name, created_at, updated_at)
+            `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, selection, potentialWin, potentialLoss, market_name]
+            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, potentialWin, potentialLoss, market_name]
           );
         } else {
           finalLiability = 0;
@@ -281,9 +278,9 @@ exports.placeBet = async (req, res) => {
         newBalance = currentBalance - liability;
         newExposure = currentExposure + liability;
         await trx.raw(
-          `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection, potential_win, potential_loss, current_bet_name, created_at, updated_at)
+          `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-          [betId, internalUserId, market_id, liability, bet_type, oddType, runs, selection, potentialWin, potentialLoss, market_name]
+          [betId, internalUserId, market_id, liability, bet_type, oddType, runs, potentialWin, potentialLoss, market_name]
         );
       }
 
