@@ -598,73 +598,86 @@ const EventDetailPage = () => {
 
   // Render ODD_EVEN_MARKETS in custom style with header row
   const renderOddEvenMarkets = (markets) => (
-    <div className="odd-even-markets-container">
-      <div className="odd-even-markets-header">
+    <div className="market-section">
+      <div className="market-header">
         ODD EVEN MARKETS
       </div>
       {markets.map((market, idx) => (
-        <div key={idx} className="odd-even-market-row">
-          <div className="odd-even-bookmark-container">
+        <div key={idx} className="market-row">
+          <div className="market-bookmark-container">
             <BookmarkIcon />
+            <div className="market-bookmark-checkmark"><CheckmarkIcon /></div>
           </div>
-          <div className="odd-even-market-content">
-            <div className="odd-even-market-name">{market.mn}</div>
-            <div className="odd-even-odds-container">
-              {/* Pink (lay) box */}
-              <div 
-                className="odd-even-lay-box"
-                onClick={() => {
-                  setSelectedMarketIndex(market.mi);
-                  setSelectedBet({ 
-                    marketIndex: market.mi, 
-                    market: {
-                      ...market,
-                      mn: market.mn || market.marketName || market.name
-                    }, 
-                    odd: { 
-                      type: 'lay', 
-                      price: market.ry || market.rn, 
-                      vol: '',
-                      name: 'YES'
-                    } 
-                  });
-                  setStake('');
-                }}
-              >
-                <div>{market.ry || '-'}</div>
-                <div className="odd-even-volume">{market.oy || 100}</div>
+          <div className="market-content">
+            <div className="market-name">{market.mn}</div>
+            {isBallRunning(market) ? (
+              renderBallRunning()
+            ) : (
+              <div className="session-market-container">
+                <div className="odds-table-container">
+                  <table className="odds-table">
+                    <thead>
+                      <tr>
+                        <th className="no-header">NO</th>
+                        <th className="yes-header">YES</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="no" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'no', 
+                                price: market.rn, 
+                                vol: '',
+                                name: 'NO'
+                              } 
+                            });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.rn || '7'}</div>
+                          <div className="odds-table-volume">{market.on || 100}</div>
+                        </td>
+                        <td className="yes" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'yes', 
+                                price: market.ry, 
+                                vol: '',
+                                name: 'YES'
+                              } 
+                            });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.ry || '8'}</div>
+                          <div className="odds-table-volume">{market.oy || 100}</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              {/* Blue (back) box */}
-              <div 
-                className="odd-even-back-box"
-                onClick={() => {
-                  setSelectedMarketIndex(market.mi);
-                  setSelectedBet({ 
-                    marketIndex: market.mi, 
-                    market: {
-                      ...market,
-                      mn: market.mn || market.marketName || market.name
-                    }, 
-                    odd: { 
-                      type: 'back', 
-                      price: market.rn || market.ly, 
-                      vol: '',
-                      name: 'NO'
-                    } 
-                  });
-                  setStake('');
-                }}
-              >
-                <div>{market.rn || '-'}</div>
-                <div className="odd-even-volume">{market.on || 100}</div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       ))}
     </div>
   );
-  
+
   // Render OTHER_MARKETS in custom style with header row
   const renderOtherMarkets = (markets) => (
     <div className="market-section">

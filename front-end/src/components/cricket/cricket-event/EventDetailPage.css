@@ -924,8 +924,8 @@
 @media (max-width: 768px) {
     .session-market-container {
         flex-direction: column;
-       align-items: stretch;
-           margin-top: -10px;
+        align-items: stretch;
+        margin-top: -10px;
     }
     .market-limits-right {
         margin-left: 0;
@@ -1028,11 +1028,11 @@
         padding: 6px 10px;
     }
     .odds-table {
-    border-collapse: separate;
-    border-spacing: 2px;
-    width: -webkit-fill-available;
-    padding-right: 20px;
-}
+        border-collapse: separate;
+        border-spacing: 2px;
+        width: -webkit-fill-available;
+        padding-right: 20px;
+    }
     /* Market row specific improvements for OTHER MARKETS and ODD EVEN MARKETS */
     .market-name-large {
         width: 150px;
@@ -1165,121 +1165,18 @@
 }
 
 
-/* ODD EVEN MARKETS styles */
+/* ODD EVEN MARKETS now use the same styles as SESSION MARKETS */
 
-.odd-even-markets-container {
-    margin-bottom: 32px;
-}
-
-.odd-even-markets-header {
-    background: #c3003c;
-    color: #fff;
+/* These styles are retained for backwards compatibility */
+.odds-table-value {
     font-weight: 700;
     font-size: 20px;
-    padding: 10px 20px;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    margin-bottom: 0;
 }
 
-.odd-even-market-row {
-    display: flex;
-    align-items: flex-start;
-    background: #fff;
-    border-bottom: 1px solid #eee;
-    padding: 18px 0 10px 0;
-    position: relative;
-}
-
-.odd-even-bookmark-container {
-    width: 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-left: 10px;
-}
-
-.odd-even-market-content {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.odd-even-market-name {
-    width: 300px;
-    font-weight: 600;
-    font-size: 18px;
-    margin-bottom: 8px;
-}
-
-.odd-even-odds-container {
-    display: flex;
-    min-width: 220px;
-}
-
-.odd-even-lay-box {
-    background: #ffcdd2;
-    color: #c3003c;
-    font-weight: 700;
-    font-size: 22px;
-    padding: 10px 24px;
-    border-radius: 6px;
-    margin-right: 8px;
-    text-align: center;
-    min-width: 40px;
-    cursor: pointer;
-}
-
-.odd-even-back-box {
-    background: #bbdefb;
-    color: #1976d2;
-    font-weight: 700;
-    font-size: 22px;
-    padding: 10px 24px;
-    border-radius: 6px;
-    text-align: center;
-    min-width: 40px;
-    cursor: pointer;
-}
-
-.odd-even-volume {
+.odds-table-volume {
     font-size: 14px;
     color: #222;
     font-weight: 400;
-}
-
-.odd-even-market-info {
-    margin-left: 32px;
-    color: #222;
-    font-size: 15px;
-    font-weight: 400;
-    width: 200px;
-    text-align: right;
-}
-
-
-/* For mobile responsiveness */
-
-@media (max-width: 768px) {
-    .odd-even-market-content {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .odd-even-market-name {
-        width: 100%;
-        margin-bottom: 12px;
-    }
-    .odd-even-odds-container {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    .odd-even-market-info {
-        width: 100%;
-        margin-left: 0;
-        text-align: left;
-    }
 }
 
 
