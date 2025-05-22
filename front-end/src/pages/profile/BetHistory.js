@@ -194,43 +194,45 @@ const BetHistory = () => {
             data.length === 0 ? (
               <div className="no-data">No Data Found</div>
             ) : (
-              <table className="bet-history-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Market ID</th>
-                    <th>Amount</th>
-                    <th>Bet Type</th>
-                    <th>Runs</th>
-                    <th>Odd Type</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.map((bet, index) => (
-                    <tr key={bet.id || index}>
-                      <td>
-                        {new Date(bet.created_at).toLocaleDateString('en-IN', {
-                          timeZone: 'Asia/Kolkata',
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric'
-                        })}
-                      </td>
-                      <td>{bet.market_id}</td>
-                      <td>₹{parseFloat(bet.amount).toLocaleString()}</td>
-                      <td>{bet.bet_type}</td>
-                      <td>{bet.runs}</td>
-                      <td>{bet.odd_type}</td>
-                      <td>
-                        <span className={`status-${bet.settlement_status}`}>
-                          {bet.settlement_status}
-                        </span>
-                      </td>
+              <div className="bet-history-table-wrapper">
+                <table className="bet-history-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Market ID</th>
+                      <th>Amount</th>
+                      <th>Bet Type</th>
+                      <th>Runs</th>
+                      <th>Odd Type</th>
+                      <th>Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {data.map((bet, index) => (
+                      <tr key={bet.id || index}>
+                        <td>
+                          {new Date(bet.created_at).toLocaleDateString('en-IN', {
+                            timeZone: 'Asia/Kolkata',
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          })}
+                        </td>
+                        <td>{bet.market_id}</td>
+                        <td>₹{parseFloat(bet.amount).toLocaleString()}</td>
+                        <td>{bet.bet_type}</td>
+                        <td>{bet.runs}</td>
+                        <td>{bet.odd_type}</td>
+                        <td>
+                          <span className={`status-${bet.settlement_status}`}>
+                            {bet.settlement_status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )
           ) : null}
         </div>

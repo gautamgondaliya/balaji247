@@ -122,6 +122,45 @@
     background-color: #f9f9f9;
 }
 
+
+/* Add table wrapper for horizontal scroll */
+
+.bet-history-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS devices */
+}
+
+.bet-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+    /* Minimum width to ensure proper display */
+}
+
+.bet-history-table th,
+.bet-history-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+}
+
+.bet-history-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.bet-history-table tr:hover {
+    background-color: #f5f5f5;
+}
+
 .no-data {
     display: flex;
     justify-content: center;
@@ -139,29 +178,18 @@
     color: #666;
 }
 
-.bet-history-table {
-    width: 100%;
-    border-collapse: collapse;
-}
 
-.bet-history-table th,
-.bet-history-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-}
+/* Mobile responsive styles */
 
-.bet-history-table th {
-    background-color: #f5f5f5;
-    font-weight: bold;
-    color: #333;
-}
-
-.bet-history-table tr:hover {
-    background-color: #f5f5f5;
-}
-
-@media (max-width: 768px) {
+@media (max-width: 700px) {
+    .bet-history-page {
+        width: 100%;
+        overflow-x: hidden;
+        /* Hide horizontal scroll on the page */
+    }
+    .bet-history-content {
+        padding: 10px;
+    }
     .search-filters {
         flex-direction: column;
         align-items: stretch;
@@ -182,5 +210,39 @@
     }
     .date-input input {
         width: 94%;
+    }
+    /* Table specific mobile styles */
+    .bet-history-results {
+        margin: 0 -10px;
+        /* Extend to full width */
+        border-left: none;
+        border-right: none;
+        border-radius: 0;
+    }
+    .bet-history-table-wrapper {
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+    }
+    .bet-history-table {
+        margin: 0;
+    }
+    .bet-history-table th,
+    .bet-history-table td {
+        padding: 8px 10px;
+    }
+    /* Custom scrollbar for better UX */
+    .bet-history-table-wrapper::-webkit-scrollbar {
+        height: 6px;
+    }
+    .bet-history-table-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    .bet-history-table-wrapper::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+    .bet-history-table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 }

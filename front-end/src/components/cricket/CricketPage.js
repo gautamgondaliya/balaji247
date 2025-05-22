@@ -143,7 +143,6 @@ const CricketPage = () => {
             <span className="cricket-header-icon">🏏</span>
             <span className="cricket-header-title">CRICKET</span>
             <button className="cricket-header-tab active">+ LIVE</button>
-            <button className="cricket-header-tab">+ VIRTUAL</button>
           </div>
           <div className="cricket-table-header-right">
             <div className="cricket-odds-header">
