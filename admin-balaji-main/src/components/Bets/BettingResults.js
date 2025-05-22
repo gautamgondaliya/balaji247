@@ -575,8 +575,8 @@ const BettingResults = () => {
                             />
                           </TableCell>
                           <TableCell><Typography variant="subtitle2">Date</Typography></TableCell>
-                          <TableCell><Typography variant="subtitle2">User ID</Typography></TableCell>
-                          <TableCell><Typography variant="subtitle2">Market ID</Typography></TableCell>
+                          {/* <TableCell><Typography variant="subtitle2">User ID</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2">Market ID</Typography></TableCell> */}
                           <TableCell><Typography variant="subtitle2">Bet Details</Typography></TableCell>
                           <TableCell><Typography variant="subtitle2">Amount</Typography></TableCell>
                           <TableCell><Typography variant="subtitle2">Potential Win</Typography></TableCell>
@@ -602,8 +602,8 @@ const BettingResults = () => {
                               />
                             </TableCell>
                             <TableCell>{formatDate(bet.created_at)}</TableCell>
-                            <TableCell>{bet.display_user_id || bet.user_id}</TableCell>
-                            <TableCell>{bet.market_id}</TableCell>
+                            {/* <TableCell>{bet.display_user_id || bet.user_id}</TableCell>
+                            <TableCell>{bet.market_id}</TableCell> */}
                             <TableCell>{bet.current_bet_name || 'N/A'}</TableCell>
                             <TableCell>₹{parseFloat(bet.amount || 0).toLocaleString()}</TableCell>
                             <TableCell>₹{parseFloat(bet.potential_win || 0).toLocaleString()}</TableCell>
