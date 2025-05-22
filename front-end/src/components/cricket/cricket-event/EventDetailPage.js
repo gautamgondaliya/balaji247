@@ -252,6 +252,20 @@ const EventDetailPage = () => {
     };
   };
 
+  // Helper to get runner names from runnerName array if available
+  const getRunnerName = (runner, runnerNames) => {
+    // First try to get name from runner object
+    if (runner.sln || runner.name || runner.RN) {
+      return runner.sln || runner.name || runner.RN;
+    }
+    // Then try to get from runnerName array
+    const matchingRunner = runnerNames.find(r => r.SID === runner.si || r.SID === runner.sid);
+    if (matchingRunner) {
+      return matchingRunner.RN;
+    }
+    return '';
+  };
+
   // Helper to render odds table with multiple prices/volumes
   const renderOddsTable = (market) => {
     // Safely get runners with fallback to empty array
@@ -259,18 +273,6 @@ const EventDetailPage = () => {
     
     // Get runner names from runnerName array if available
     const runnerNames = market.runnerName || [];
-    const getRunnerName = (runner, index) => {
-      // First try to get name from runner object
-      if (runner.sln || runner.name || runner.RN) {
-        return runner.sln || runner.name || runner.RN;
-      }
-      // Then try to get from runnerName array
-      const matchingRunner = runnerNames.find(r => r.SID === runner.si || r.SID === runner.sid);
-      if (matchingRunner) {
-        return matchingRunner.RN;
-      }
-      return '';
-    };
     
     return (
       <table className="odds-table">
@@ -283,21 +285,26 @@ const EventDetailPage = () => {
         </thead>
         <tbody>
           {runners.map((runner, idx) => {
+            const runnerName = getRunnerName(runner, runnerNames);
             return (
               <tr key={idx}>
-                <td>{getRunnerName(runner, idx)}</td>
+                <td>{runnerName}</td>
                 {/* Back price */}
                 <td className="back"
                     onClick={() => {
                     setSelectedMarketIndex(market.mi || market.marketId || market.id);
                     setSelectedBet({ 
                       marketIndex: market.mi || market.marketId || market.id, 
-                      market, 
+                      market: {
+                        ...market,
+                        mn: market.mn || market.marketName || market.name
+                      }, 
                       odd: { 
                         ...runner, 
                         type: 'back', 
                         price: runner.b || (runner.ex?.b?.[0]?.p) || '', 
-                        vol: '' 
+                        vol: '',
+                        name: runnerName
                       } 
                     });
                         setStake('');
@@ -311,12 +318,16 @@ const EventDetailPage = () => {
                     setSelectedMarketIndex(market.mi || market.marketId || market.id);
                     setSelectedBet({ 
                       marketIndex: market.mi || market.marketId || market.id, 
-                      market, 
+                      market: {
+                        ...market,
+                        mn: market.mn || market.marketName || market.name
+                      }, 
                       odd: { 
                         ...runner, 
                         type: 'lay', 
                         price: runner.l || (runner.ex?.l?.[0]?.p) || '', 
-                        vol: '' 
+                        vol: '',
+                        name: runnerName
                       } 
                     });
                         setStake('');
@@ -370,7 +381,19 @@ const EventDetailPage = () => {
                       <tr>
                         <td className="no" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'no', 
+                                price: market.rn, 
+                                vol: '',
+                                name: 'NO'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -379,7 +402,19 @@ const EventDetailPage = () => {
                         </td>
                         <td className="yes" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'yes', 
+                                price: market.ry, 
+                                vol: '',
+                                name: 'YES'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -428,7 +463,19 @@ const EventDetailPage = () => {
                       <tr>
                         <td className="no" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'no', 
+                                price: market.rn, 
+                                vol: '',
+                                name: 'NO'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -437,7 +484,19 @@ const EventDetailPage = () => {
                         </td>
                         <td className="yes" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'yes', 
+                                price: market.ry, 
+                                vol: '',
+                                name: 'YES'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -485,7 +544,19 @@ const EventDetailPage = () => {
                       <tr>
                         <td className="no" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'no', 
+                                price: market.rn, 
+                                vol: '',
+                                name: 'NO'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -494,7 +565,19 @@ const EventDetailPage = () => {
                         </td>
                         <td className="yes" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'yes', 
+                                price: market.ry, 
+                                vol: '',
+                                name: 'YES'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -534,11 +617,15 @@ const EventDetailPage = () => {
                   setSelectedMarketIndex(market.mi);
                   setSelectedBet({ 
                     marketIndex: market.mi, 
-                    market, 
+                    market: {
+                      ...market,
+                      mn: market.mn || market.marketName || market.name
+                    }, 
                     odd: { 
                       type: 'lay', 
                       price: market.ry || market.rn, 
-                      vol: '' 
+                      vol: '',
+                      name: 'YES'
                     } 
                   });
                   setStake('');
@@ -554,11 +641,15 @@ const EventDetailPage = () => {
                   setSelectedMarketIndex(market.mi);
                   setSelectedBet({ 
                     marketIndex: market.mi, 
-                    market, 
+                    market: {
+                      ...market,
+                      mn: market.mn || market.marketName || market.name
+                    }, 
                     odd: { 
                       type: 'back', 
                       price: market.rn || market.ly, 
-                      vol: '' 
+                      vol: '',
+                      name: 'NO'
                     } 
                   });
                   setStake('');
@@ -603,7 +694,19 @@ const EventDetailPage = () => {
                       <tr>
                         <td className="no" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'no', 
+                                price: market.rn, 
+                                vol: '',
+                                name: 'NO'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -612,7 +715,19 @@ const EventDetailPage = () => {
                         </td>
                         <td className="yes" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'yes', 
+                                price: market.ry, 
+                                vol: '',
+                                name: 'YES'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -660,7 +775,19 @@ const EventDetailPage = () => {
                       <tr>
                         <td className="no" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'no', 
+                                price: market.rn, 
+                                vol: '',
+                                name: 'NO'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -669,7 +796,19 @@ const EventDetailPage = () => {
                         </td>
                         <td className="yes" onClick={() => {
                             setSelectedMarketIndex(market.mi);
-                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setSelectedBet({ 
+                              marketIndex: market.mi, 
+                              market: {
+                                ...market,
+                                mn: market.mn || market.marketName || market.name
+                              }, 
+                              odd: { 
+                                type: 'yes', 
+                                price: market.ry, 
+                                vol: '',
+                                name: 'YES'
+                              } 
+                            });
                             setStake('');
                           }}
                         >
@@ -794,7 +933,19 @@ const EventDetailPage = () => {
                             {/* NO column/cell */}
                             <td className="no" onClick={() => {
                                 setSelectedMarketIndex(market.mi);
-                                setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                                setSelectedBet({ 
+                                  marketIndex: market.mi, 
+                                  market: {
+                                    ...market,
+                                    mn: market.mn || market.marketName || market.name
+                                  }, 
+                                  odd: { 
+                                    type: 'no', 
+                                    price: market.rn, 
+                                    vol: '',
+                                    name: 'NO'
+                                  } 
+                                });
                                 setStake('');
                               }}
                             >
@@ -804,7 +955,19 @@ const EventDetailPage = () => {
                             {/* YES column/cell */}
                             <td className="yes" onClick={() => {
                                 setSelectedMarketIndex(market.mi);
-                                setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                                setSelectedBet({ 
+                                  marketIndex: market.mi, 
+                                  market: {
+                                    ...market,
+                                    mn: market.mn || market.marketName || market.name
+                                  }, 
+                                  odd: { 
+                                    type: 'yes', 
+                                    price: market.ry, 
+                                    vol: '',
+                                    name: 'YES'
+                                  } 
+                                });
                                 setStake('');
                               }}
                             >

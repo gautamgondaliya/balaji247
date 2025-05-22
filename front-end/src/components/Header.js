@@ -6,6 +6,8 @@ import Logo_reddy_book from "../assets/Images/logo.png"
 import { CiUser } from "react-icons/ci";
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import account_icon from "../assets/Images/account.png";
+import Search_btn from "../assets/Images/magnify.png";
 
 const BASE_URL = process.env.REACT_APP_API_URL || 'https://backbalaji.dynexbet.com/api';
 
@@ -173,7 +175,7 @@ const Header = () => {
       {/* Search Bar */}
       <div className="rb-header-search">
         <input type="text" placeholder="Search Events" />
-        <span className="rb-header-search-icon">&#128269;</span>
+        <span className="rb-header-search-icon"> <img src={Search_btn} alt="" /> </span>
       </div>
       </div>
       {/* Right Side: BAL, EXP, User or Login Button */}
@@ -196,7 +198,7 @@ const Header = () => {
             </div>
             <div style={{ position: 'relative' }} ref={userRef}>
               <div className="rb-header-user" onClick={() => setShowAccount(v => !v)} style={{ cursor: 'pointer' }}>
-                {userData?.name || userData?.user_id || 'User'} <span style={{fontSize: 18}}>&#129333;</span>
+                {userData?.name || userData?.user_id || 'User'} <span style={{fontSize: 18}}> <img src={account_icon} alt="" /> </span>
               </div>
               {showAccount && (
                 <AccountDropdown

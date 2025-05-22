@@ -143,6 +143,9 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         return;
       }
 
+      // Construct bet title
+      const betTitle = `${selectedBet.market.mn} - ${selectedBet.odd.type.toUpperCase()}: ${selectedBet.odd.price}`;
+
       // Prepare bet data
       const betData = {
         user_id: userId,
@@ -154,7 +157,10 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         yes_run: selectedBet.market.ry || 0,
         yes_odd: selectedBet.market.oy || 0,
         no_run: selectedBet.market.rn || 0,
-        no_odd: selectedBet.market.on || 0
+        no_odd: selectedBet.market.on || 0,
+        bet_title: betTitle, // Add bet title to payload
+        market_name: selectedBet.market.mn || '', // Add market name
+        selection_name: selectedBet.odd.type.toUpperCase() // Add selection name
       };
 
       // Send request to place bet with auth headers
