@@ -386,10 +386,11 @@
     font-size: 13px;
 }
 .rb-header-logo-main-txt {
-    padding: 0;
+      padding: 0;
     margin: 0;
-    padding-left: 18px;
-    font-size: 13px;
+    padding-top: 3px;
+    padding-left: 2px;
+    font-size: 20px;
     text-transform: uppercase;
 }
 }

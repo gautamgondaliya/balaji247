@@ -346,17 +346,6 @@ const EventDetailPage = () => {
       <div className="market-header">
         SESSION MARKETS
       </div>
-      {/* Header row for NO/YES */}
-      <div className="market-header-row">
-        <div className="market-header-content">
-          <div className="market-header-label"></div>
-          <div className="market-header-values">
-            <div className="market-header-no">NO</div>
-            <div className="market-header-yes">YES</div>
-          </div>
-          <div style={{ flex: 1 }}></div>
-        </div>
-      </div>
       {markets.map((market, idx) => (
         <div key={idx} className="market-row">
           <div className="market-bookmark-container">
@@ -365,41 +354,44 @@ const EventDetailPage = () => {
           </div>
           <div className="market-content">
             <div className="market-name">{market.mn}</div>
-            <div className="market-values-container">
-              {isBallRunning(market) ? (
-                renderBallRunning()
-              ) : (
-                <>
-                  {/* NO odds */}
-                  <div className="odds-button-no"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.rn || '-'}</div>
-                    <div className="odds-volume">{market.on || 100}</div>
-                  </div>
-                  {/* YES odds */}
-                  <div className="odds-button-yes"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.ry || '-'}</div>
-                    <div className="odds-volume">{market.oy || 100}</div>
-                  </div>
-                </>
-              )}
-            </div>
-            {/* Max Bet/Market info */}
-            <div className="market-limits">
-              <div>Max Bet: {market.mins || 100}</div>
-              <div>Max Market: {market.mml || 500000}</div>
-            </div>
+            {isBallRunning(market) ? (
+              renderBallRunning()
+            ) : (
+              <div className="session-market-container">
+                <div className="odds-table-container">
+                  <table className="odds-table">
+                    <thead>
+                      <tr>
+                        <th className="no-header">NO</th>
+                        <th className="yes-header">YES</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="no" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.rn || '-'}</div>
+                          <div className="odds-table-volume">{market.on || 100}</div>
+                        </td>
+                        <td className="yes" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.ry || '-'}</div>
+                          <div className="odds-table-volume">{market.oy || 100}</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ))}
@@ -412,54 +404,52 @@ const EventDetailPage = () => {
       <div className="market-header">
         FALL OF WICKET
       </div>
-      {/* Header row for NO/YES */}
-      <div className="market-header-row">
-        <div className="market-header-content">
-          <div className="market-header-label"></div>
-          <div className="market-header-values">
-            <div className="market-header-no">NO</div>
-            <div className="market-header-yes">YES</div>
-          </div>
-          <div style={{ flex: 1 }}></div>
-        </div>
-      </div>
       {markets.map((market, idx) => (
         <div key={idx} className="market-row">
           <div className="market-bookmark-container">
             <BookmarkIcon />
+            <div className="market-bookmark-checkmark"><CheckmarkIcon /></div>
           </div>
           <div className="market-content">
-            <div className="market-name">{market.mn}</div>
-            <div className="market-values-container">
-              {isBallRunning(market) ? (
-                renderBallRunning()
-              ) : (
-                <div className="odds-button-container">
-                  {/* NO odds */}
-                  <div className="odds-button-no"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.rn || '-'}</div>
-                    <div className="odds-volume">{market.on || 100}</div>
-                  </div>
-                  {/* YES odds */}
-                  <div className="odds-button-yes"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.ry || '-'}</div>
-                    <div className="odds-volume">{market.oy || 100}</div>
-                  </div>
+            <div className="market-name-large">{market.mn}</div>
+            {isBallRunning(market) ? (
+              renderBallRunning()
+            ) : (
+              <div className="session-market-container">
+                <div className="odds-table-container">
+                  <table className="odds-table">
+                    <thead>
+                      <tr>
+                        <th className="no-header">NO</th>
+                        <th className="yes-header">YES</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="no" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.rn || '-'}</div>
+                          <div className="odds-table-volume">{market.on || 100}</div>
+                        </td>
+                        <td className="yes" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.ry || '-'}</div>
+                          <div className="odds-table-volume">{market.oy || 100}</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       ))}
@@ -472,17 +462,6 @@ const EventDetailPage = () => {
       <div className="market-header">
         OVER SESSION MARKET
       </div>
-      {/* Header row for NO/YES */}
-      <div className="market-header-row">
-        <div className="market-header-content">
-          <div className="market-header-label"></div>
-          <div className="market-header-values">
-            <div className="market-header-no">NO</div>
-            <div className="market-header-yes">YES</div>
-          </div>
-          <div className="market-header-spacer"></div>
-        </div>
-      </div>
       {markets.map((market, idx) => (
         <div key={idx} className="market-row">
           <div className="market-bookmark-container">
@@ -490,47 +469,50 @@ const EventDetailPage = () => {
           </div>
           <div className="market-content">
             <div className="market-name">{market.mn}</div>
-            <div className="market-values-container">
-              {isBallRunning(market) ? (
-                renderBallRunning()
-              ) : (
-                <div className="odds-button-container">
-                  {/* NO odds */}
-                  <div className="odds-button-no"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.rn || '-'}</div>
-                    <div className="odds-volume">{market.on || 100}</div>
-                  </div>
-                  {/* YES odds */}
-                  <div className="odds-button-yes"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.ry || '-'}</div>
-                    <div className="odds-volume">{market.oy || 100}</div>
-                  </div>
+            {isBallRunning(market) ? (
+              renderBallRunning()
+            ) : (
+              <div className="session-market-container">
+                <div className="odds-table-container">
+                  <table className="odds-table">
+                    <thead>
+                      <tr>
+                        <th className="no-header">NO</th>
+                        <th className="yes-header">YES</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="no" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.rn || '-'}</div>
+                          <div className="odds-table-volume">{market.on || 100}</div>
+                        </td>
+                        <td className="yes" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.ry || '-'}</div>
+                          <div className="odds-table-volume">{market.oy || 100}</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-              )}
-            </div>
-            {/* Max Bet/Market info */}
-            <div className="market-limits">
-              <div>Max Bet: {market.mins || 100}</div>
-              <div>Max Market: {market.mml || 500000}</div>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       ))}
     </div>
   );
-  
+
   // Render ODD_EVEN_MARKETS in custom style with header row
   const renderOddEvenMarkets = (markets) => (
     <div className="odd-even-markets-container">
@@ -586,11 +568,6 @@ const EventDetailPage = () => {
                 <div className="odd-even-volume">{market.on || 100}</div>
               </div>
             </div>
-            {/* Max Bet/Market info */}
-            <div className="odd-even-market-info">
-              <div>Max Bet: {market.mins || 100}</div>
-              <div>Max Market: {market.mml || market.ms || 25000}</div>
-            </div>
           </div>
         </div>
       ))}
@@ -603,17 +580,6 @@ const EventDetailPage = () => {
       <div className="market-header">
         OTHER MARKETS
       </div>
-      {/* Header row for NO/YES */}
-      <div className="market-header-row">
-        <div className="market-header-content">
-          <div className="market-header-label" style={{ width: 280 }}></div>
-          <div className="market-header-values">
-            <div className="market-header-no">NO</div>
-            <div className="market-header-yes">YES</div>
-          </div>
-          <div style={{ flex: 1 }}></div>
-        </div>
-      </div>
       {markets.map((market, idx) => (
         <div key={idx} className="market-row">
           <div className="market-bookmark-container">
@@ -621,41 +587,44 @@ const EventDetailPage = () => {
           </div>
           <div className="market-content">
             <div className="market-name-large">{market.mn}</div>
-            <div className="market-values-container">
-              {isBallRunning(market) ? (
-                renderBallRunning()
-              ) : (
-                <div className="odds-button-container">
-                  {/* NO odds */}
-                  <div className="odds-button-no odds-button-compact"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.rn || '-'}</div>
-                    <div className="odds-volume">{market.on || 100}</div>
-                  </div>
-                  {/* YES odds */}
-                  <div className="odds-button-yes odds-button-compact"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.ry || '-'}</div>
-                    <div className="odds-volume">{market.oy || 100}</div>
-                  </div>
+            {isBallRunning(market) ? (
+              renderBallRunning()
+            ) : (
+              <div className="session-market-container">
+                <div className="odds-table-container">
+                  <table className="odds-table">
+                    <thead>
+                      <tr>
+                        <th className="no-header">NO</th>
+                        <th className="yes-header">YES</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="no" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.rn || '-'}</div>
+                          <div className="odds-table-volume">{market.on || 100}</div>
+                        </td>
+                        <td className="yes" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.ry || '-'}</div>
+                          <div className="odds-table-volume">{market.oy || 100}</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-              )}
-            </div>
-            {/* Max Bet/Market info */}
-            <div className="market-limits">
-              <div>Max Bet: {market.mins || 100}</div>
-              <div>Max Market: {market.mml || market.ms || 25000}</div>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       ))}
@@ -668,59 +637,51 @@ const EventDetailPage = () => {
       <div className="market-header">
         TOTAL ADVANCE
       </div>
-      {/* Header row for NO/YES */}
-      <div className="market-header-row">
-        <div className="market-header-content">
-          <div className="market-header-label" style={{ width: 280 }}></div>
-          <div className="market-header-values">
-            <div className="market-header-no">NO</div>
-            <div className="market-header-yes">YES</div>
-          </div>
-          <div style={{ flex: 1 }}></div>
-        </div>
-      </div>
       {markets.map((market, idx) => (
         <div key={idx} className="market-row">
           <div className="market-bookmark-container">
             <BookmarkIcon />
           </div>
           <div className="market-content">
-            <div className="market-name-large">{market.mn}</div>
-            <div className="market-values-container">
-              {isBallRunning(market) ? (
-                renderBallRunning()
-              ) : (
-                <div className="odds-button-container">
-                  {/* NO odds */}
-                  <div className="odds-button-no odds-button-compact"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.rn || '-'}</div>
-                    <div className="odds-volume">{market.on || 100}</div>
-                  </div>
-                  {/* YES odds */}
-                  <div className="odds-button-yes odds-button-compact"
-                    onClick={() => {
-                      setSelectedMarketIndex(market.mi);
-                      setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                      setStake('');
-                    }}
-                  >
-                    <div className="odds-value">{market.ry || '-'}</div>
-                    <div className="odds-volume">{market.oy || 100}</div>
-                  </div>
+            <div className="market-name">{market.mn}</div>
+            {isBallRunning(market) ? (
+              renderBallRunning()
+            ) : (
+              <div className="session-market-container">
+                <div className="odds-table-container">
+                  <table className="odds-table">
+                    <thead>
+                      <tr>
+                        <th className="no-header">NO</th>
+                        <th className="yes-header">YES</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="no" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.rn || '-'}</div>
+                          <div className="odds-table-volume">{market.on || 100}</div>
+                        </td>
+                        <td className="yes" onClick={() => {
+                            setSelectedMarketIndex(market.mi);
+                            setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                            setStake('');
+                          }}
+                        >
+                          <div className="odds-table-value">{market.ry || '-'}</div>
+                          <div className="odds-table-volume">{market.oy || 100}</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-              )}
-            </div>
-            {/* Max Bet/Market info */}
-            <div className="market-limits">
-              <div>Max Bet: {market.mins || 100}</div>
-              <div>Max Market: {market.mml || market.ms || 25000}</div>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       ))}
@@ -742,10 +703,6 @@ const EventDetailPage = () => {
           {markets['BOOKMAKER'].map((market) => (
             <div className="event-market-row" key={market.mi || market.id} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
               {renderOddsTable(market)}
-              <div className="event-market-meta event-market-meta-right">
-                <div>Min: {market.mins || market.min_stake_limit || 100} | Max: {market.ms || market.max_bet || 100000}</div>
-                <div>Max Market: {market.mml || market.max_market_limit || 500000}</div>
-              </div>
             </div>
           ))}
         </div>
@@ -762,10 +719,6 @@ const EventDetailPage = () => {
           {markets['WINNING_ODDS'].map((market) => (
             <div className="event-market-row" key={market.mi || market.id} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
               {renderOddsTable(market)}
-              <div className="event-market-meta event-market-meta-right">
-                <div>Min: {market.mins || market.min_stake_limit || 100} | Max: {market.ms || market.max_bet || 100000}</div>
-                <div>Max Market: {market.mml || market.max_market_limit || 500000}</div>
-              </div>
             </div>
           ))}
         </div>
@@ -827,35 +780,43 @@ const EventDetailPage = () => {
                 {isBallRunning(market) ? (
                   renderBallRunning()
                 ) : (
-                  <div className="odds-button-container odds-button-container-with-margin">
-                    {/* NO odds */}
-                    <div className="odds-button-no"
-                      onClick={() => {
-                        setSelectedMarketIndex(market.mi);
-                        setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
-                        setStake('');
-                      }}
-                    >
-                      <div className="odds-value">{market.rn || '-'}</div>
-                      <div className="odds-volume">{market.on || 100}</div>
-                    </div>
-                    {/* YES odds */}
-                    <div className="odds-button-yes"
-                      onClick={() => {
-                        setSelectedMarketIndex(market.mi);
-                        setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
-                        setStake('');
-                      }}
-                    >
-                      <div className="odds-value">{market.ry || '-'}</div>
-                      <div className="odds-volume">{market.oy || 100}</div>
+                  <div className="session-market-container">
+                    <div className="odds-table-container">
+                      <table className="odds-table">
+                        <thead>
+                          <tr>
+                            <th className="no-header">NO</th>
+                            <th className="yes-header">YES</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            {/* NO column/cell */}
+                            <td className="no" onClick={() => {
+                                setSelectedMarketIndex(market.mi);
+                                setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'no', price: market.rn, vol: '' } });
+                                setStake('');
+                              }}
+                            >
+                              <div className="odds-table-value">{market.rn || '-'}</div>
+                              <div className="odds-table-volume">{market.on || 100}</div>
+                            </td>
+                            {/* YES column/cell */}
+                            <td className="yes" onClick={() => {
+                                setSelectedMarketIndex(market.mi);
+                                setSelectedBet({ marketIndex: market.mi, market, odd: { type: 'yes', price: market.ry, vol: '' } });
+                                setStake('');
+                              }}
+                            >
+                              <div className="odds-table-value">{market.ry || '-'}</div>
+                              <div className="odds-table-volume">{market.oy || 100}</div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 )}
-                <div className="event-market-meta event-market-meta-right">
-                  <div>Min: {market.mins || market.min_stake_limit || 100} | Max: {market.ms || market.max_bet || 100000}</div>
-                  <div>Max Market: {market.mml || market.max_market_limit || 500000}</div>
-                </div>
               </div>
             ))}
           </div>

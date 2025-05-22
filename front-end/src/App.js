@@ -73,8 +73,6 @@ function App() {
             selectedCategory === 'Multi Market' ? (
               <>
                 <CricketPage />
-                <FootballPage />
-                <TennisPage />
               </>
             ) : selectedCategory === 'Cricket' ? (
               <CricketPage />
