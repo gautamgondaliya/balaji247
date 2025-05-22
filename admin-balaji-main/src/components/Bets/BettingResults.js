@@ -18,11 +18,13 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import axios from 'axios';
 import DashboardLayout from '../Layout/DashboardLayout';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'https://backbalaji.dynexbet.com/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const BettingResults = () => {
   const [pendingBets, setPendingBets] = useState([]);
@@ -34,6 +36,10 @@ const BettingResults = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [selectedBets, setSelectedBets] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [bulkSettleDialog, setBulkSettleDialog] = useState(false);
+  const [bulkSettleType, setBulkSettleType] = useState('');
 
   // Get the auth token
   const getAuthHeaders = () => {
@@ -79,7 +85,16 @@ const BettingResults = () => {
         });
         
         console.log(`Found ${allPendingBets.length} pending bets total`);
-        setPendingBets(allPendingBets);
+        
+        // Sort pending bets to show latest first (by created_at date)
+        const sortedBets = allPendingBets.sort((a, b) => {
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+        
+        setPendingBets(sortedBets);
+        // Reset selections when data changes
+        setSelectedBets([]);
+        setSelectAll(false);
       } else {
         console.error('API returned error:', response.data.message);
         setError('Failed to fetch bets');
@@ -94,11 +109,7 @@ const BettingResults = () => {
 
   useEffect(() => {
     fetchBets();
-    
-    // Refresh data every 30 seconds
-    const intervalId = setInterval(fetchBets, 30000);
-    
-    return () => clearInterval(intervalId);
+    // No automatic refresh - removed interval
   }, []);
 
   // Handle dialog open for bet settlement confirmation
@@ -161,6 +172,103 @@ const BettingResults = () => {
     }
   };
 
+  // Handle selecting a bet
+  const handleSelectBet = (betId) => {
+    setSelectedBets(prev => {
+      if (prev.includes(betId)) {
+        // Remove from selection
+        return prev.filter(id => id !== betId);
+      } else {
+        // Add to selection
+        return [...prev, betId];
+      }
+    });
+  };
+
+  // Handle select all
+  const handleSelectAll = () => {
+    if (selectAll) {
+      // Deselect all
+      setSelectedBets([]);
+    } else {
+      // Select all
+      setSelectedBets(pendingBets.map(bet => bet.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  // Open bulk settlement dialog
+  const handleOpenBulkDialog = (type) => {
+    if (selectedBets.length === 0) {
+      setSnackbarMessage("Please select at least one bet");
+      setSnackbarSeverity("warning");
+      setOpenSnackbar(true);
+      return;
+    }
+    setBulkSettleType(type);
+    setBulkSettleDialog(true);
+  };
+
+  // Close bulk settlement dialog
+  const handleCloseBulkDialog = () => {
+    setBulkSettleDialog(false);
+  };
+
+  // Process bulk settlement
+  const processBulkSettlement = async () => {
+    if (selectedBets.length === 0) return;
+
+    try {
+      const apiStatus = bulkSettleType === 'win' ? 'yes' : 'no';
+      let successCount = 0;
+      let failCount = 0;
+
+      // Process each bet sequentially
+      for (const betId of selectedBets) {
+        try {
+          const response = await axios.post(
+            `${BASE_URL}/betting/settle`,
+            {
+              bet_id: betId,
+              status: apiStatus
+            },
+            getAuthHeaders()
+          );
+
+          if (response.data.success) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch (err) {
+          failCount++;
+          console.error(`Error settling bet ${betId}:`, err);
+        }
+      }
+
+      // Update UI and show message
+      if (successCount > 0) {
+        // Refresh data to get updated status
+        fetchBets();
+
+        setSnackbarMessage(`Successfully settled ${successCount} bets. Failed: ${failCount}`);
+        setSnackbarSeverity(failCount > 0 ? 'warning' : 'success');
+        setOpenSnackbar(true);
+      } else {
+        setSnackbarMessage('Failed to settle bets');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
+      }
+    } catch (err) {
+      console.error('Error in bulk settlement:', err);
+      setSnackbarMessage('Error processing bulk settlement');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+    } finally {
+      handleCloseBulkDialog();
+    }
+  };
+
   // Handle snackbar close
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
@@ -190,8 +298,23 @@ const BettingResults = () => {
           Results Declaration
         </Typography>
         
-        <Paper sx={{ p: 2, mt: 2 }}>
-          {loading ? (
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6" component="h2">
+            Pending Bets ({pendingBets.length})
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={fetchBets}
+            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+            disabled={loading}
+          >
+            {loading ? 'Refreshing...' : 'Refresh Bets'}
+          </Button>
+        </Box>
+        
+        <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+          {loading && pendingBets.length === 0 ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
               <CircularProgress />
             </Box>
@@ -202,62 +325,113 @@ const BettingResults = () => {
               No pending bets to settle
             </Typography>
           ) : (
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                    <TableCell><Typography variant="subtitle2">Date</Typography></TableCell>
-                    <TableCell><Typography variant="subtitle2">User ID</Typography></TableCell>
-                    <TableCell><Typography variant="subtitle2">Market ID</Typography></TableCell>
-                    <TableCell><Typography variant="subtitle2">Amount</Typography></TableCell>
-                    <TableCell><Typography variant="subtitle2">Bet Type</Typography></TableCell>
-                    <TableCell><Typography variant="subtitle2">Odd Type</Typography></TableCell>
-                    <TableCell><Typography variant="subtitle2">Status</Typography></TableCell>
-                    <TableCell><Typography variant="subtitle2">Actions</Typography></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {pendingBets.map((bet) => (
-                    <TableRow key={bet.id} hover>
-                      <TableCell>{formatDate(bet.created_at)}</TableCell>
-                      <TableCell>
-                        {bet.display_user_id && bet.display_user_id.startsWith('UN') ? bet.display_user_id : 'N/A'}
+            <>
+              {/* Bulk action buttons */}
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="subtitle1">
+                    {selectedBets.length} of {pendingBets.length} bets selected
+                  </Typography>
+                </Box>
+                <Box>
+                  <Button 
+                    variant="contained" 
+                    color="success" 
+                    disabled={selectedBets.length === 0}
+                    onClick={() => handleOpenBulkDialog('win')}
+                    sx={{ mr: 1 }}
+                  >
+                    Mark Selected as WIN
+                  </Button>
+                  <Button 
+                    variant="contained" 
+                    color="error" 
+                    disabled={selectedBets.length === 0}
+                    onClick={() => handleOpenBulkDialog('loss')}
+                  >
+                    Mark Selected as LOSS
+                  </Button>
+                </Box>
+              </Box>
+
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          indeterminate={selectedBets.length > 0 && selectedBets.length < pendingBets.length}
+                        />
                       </TableCell>
-                      <TableCell>{bet.market_id}</TableCell>
-                      <TableCell>₹{parseFloat(bet.amount).toLocaleString()}</TableCell>
-                      <TableCell>{bet.bet_type}</TableCell>
-                      <TableCell>{bet.odd_type}</TableCell>
-                      <TableCell>{bet.settlement_status}</TableCell>
-                      <TableCell>
-                        <Box>
-                          <Button 
-                            variant="contained" 
-                            color="success" 
-                            size="small" 
-                            onClick={() => handleOpenDialog(bet, 'win')}
-                            sx={{ mr: 1 }}
-                          >
-                            Win
-                          </Button>
-                          <Button 
-                            variant="contained" 
-                            color="error" 
-                            size="small"
-                            onClick={() => handleOpenDialog(bet, 'loss')}
-                          >
-                            Loss
-                          </Button>
-                        </Box>
-                      </TableCell>
+                      <TableCell><Typography variant="subtitle2">Date</Typography></TableCell>
+                      <TableCell><Typography variant="subtitle2">User ID</Typography></TableCell>
+                      <TableCell><Typography variant="subtitle2">Market ID</Typography></TableCell>
+                      <TableCell><Typography variant="subtitle2">Bet Details</Typography></TableCell>
+                      <TableCell><Typography variant="subtitle2">Amount</Typography></TableCell>
+                      <TableCell><Typography variant="subtitle2">Bet Type</Typography></TableCell>
+                      <TableCell><Typography variant="subtitle2">Runs</Typography></TableCell>
+                      <TableCell><Typography variant="subtitle2">Odd Type</Typography></TableCell>
+                      <TableCell><Typography variant="subtitle2">Status</Typography></TableCell>
+                      <TableCell><Typography variant="subtitle2">Actions</Typography></TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {pendingBets.map((bet) => (
+                      <TableRow 
+                        key={bet.id} 
+                        hover
+                        selected={selectedBets.includes(bet.id)}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={selectedBets.includes(bet.id)}
+                            onChange={() => handleSelectBet(bet.id)}
+                          />
+                        </TableCell>
+                        <TableCell>{formatDate(bet.created_at)}</TableCell>
+                        <TableCell>
+                          {bet.display_user_id || 'N/A'}
+                        </TableCell>
+                        <TableCell>{bet.market_id}</TableCell>
+                        <TableCell>{bet.current_bet_name || 'N/A'}</TableCell>
+                        <TableCell>₹{parseFloat(bet.amount).toLocaleString()}</TableCell>
+                        <TableCell>{bet.bet_type}</TableCell>
+                        <TableCell>{bet.runs}</TableCell>
+                        <TableCell>{bet.odd_type}</TableCell>
+                        <TableCell>{bet.settlement_status}</TableCell>
+                        <TableCell>
+                          <Box>
+                            <Button 
+                              variant="contained" 
+                              color="success" 
+                              size="small" 
+                              onClick={() => handleOpenDialog(bet, 'win')}
+                              sx={{ mr: 1 }}
+                            >
+                              Win
+                            </Button>
+                            <Button 
+                              variant="contained" 
+                              color="error" 
+                              size="small"
+                              onClick={() => handleOpenDialog(bet, 'loss')}
+                            >
+                              Loss
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
           )}
         </Paper>
         
-        {/* Confirmation Dialog */}
+        {/* Single Bet Confirmation Dialog */}
         <Dialog
           open={openDialog}
           onClose={handleCloseDialog}
@@ -276,10 +450,19 @@ const BettingResults = () => {
                   <strong>Market ID:</strong> {currentBet?.market_id}
                 </Typography>
                 <Typography variant="body2">
+                  <strong>Bet Details:</strong> {currentBet?.current_bet_name || 'N/A'}
+                </Typography>
+                <Typography variant="body2">
                   <strong>Amount:</strong> ₹{parseFloat(currentBet?.amount || 0).toLocaleString()}
                 </Typography>
                 <Typography variant="body2">
                   <strong>Bet Type:</strong> {currentBet?.bet_type}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Runs:</strong> {currentBet?.runs}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Odd Type:</strong> {currentBet?.odd_type}
                 </Typography>
               </Box>
             </DialogContentText>
@@ -295,6 +478,35 @@ const BettingResults = () => {
               autoFocus
             >
               Confirm {settlementType === 'win' ? 'Win' : 'Loss'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+        
+        {/* Bulk Settlement Confirmation Dialog */}
+        <Dialog
+          open={bulkSettleDialog}
+          onClose={handleCloseBulkDialog}
+        >
+          <DialogTitle>
+            {bulkSettleType === 'win' ? 'Mark Selected Bets as Winners' : 'Mark Selected Bets as Losers'}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to mark {selectedBets.length} bet(s) as {bulkSettleType === 'win' ? 'winners' : 'losers'}?
+              This action cannot be undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseBulkDialog} color="primary">
+              Cancel
+            </Button>
+            <Button 
+              onClick={processBulkSettlement} 
+              color={bulkSettleType === 'win' ? 'success' : 'error'}
+              variant="contained"
+              autoFocus
+            >
+              Confirm {bulkSettleType === 'win' ? 'Win' : 'Loss'}
             </Button>
           </DialogActions>
         </Dialog>
