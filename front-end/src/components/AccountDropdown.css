@@ -413,3 +413,18 @@ background: white;
 border-radius: 8px;
 border: 1px solid #ddd;
 }
+@media (max-width:375px){
+    .account-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 54px;
+    width: 300px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    overflow: hidden;
+    border: 1px solid #c8002f;
+    font-family: inherit;
+}
+}
