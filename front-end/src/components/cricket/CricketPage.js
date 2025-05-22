@@ -48,7 +48,7 @@ const CricketPage = () => {
         // Only show loading on initial fetch
         if (!matches) setLoading(true);
         
-        const response = await axios.get(`https://backbalaji.dynexbet.com/api/cricket`);
+        const response = await axios.get(`https://zplay1.in/pb/api/v1/events/matches/inplay`);
         setMatches(response.data);
         setLastFetchTime(now);
         setLoading(false);
@@ -72,52 +72,53 @@ const CricketPage = () => {
     };
   }, [lastFetchTime, matches]);
 
-  // Extract odds from the metadata if available
-  const getOddsFromMetadata = (match) => {
+  // Extract odds from the match data if available
+  const getOddsFromMatchData = (match) => {
     try {
-      if (match.metadata && match.metadata.book) {
-        const bookParts = match.metadata.book.split('|');
-        if (bookParts.length >= 7) {
-          const runnersData = bookParts[7].split(',');
-          let odds = [];
+      if (match.runners && match.runners.length > 0) {
+        let odds = [];
 
-          // Function to extract odds from a runner's data
-          const extractOdds = (runnerData) => {
-            if (!runnerData) return { back: "-", lay: "-" };
-            const parts = runnerData.split('~');
-            if (parts.length < 4) return { back: "-", lay: "-" };
+        // Function to extract odds from a runner's data
+        const extractOdds = (runnerData) => {
+          if (!runnerData || !runnerData.ex) return { back: "-", lay: "-" };
+          
+          // Extract best back odds (highest price)
+          const backOdds = runnerData.ex.b && runnerData.ex.b.length > 0 
+            ? runnerData.ex.b[0].p || "-" 
+            : "-";
+          
+          // Extract best lay odds (lowest price)
+          const layOdds = runnerData.ex.l && runnerData.ex.l.length > 0 
+            ? runnerData.ex.l[0].p || "-" 
+            : "-";
+          
+          return { back: backOdds, lay: layOdds };
+        };
 
-            // Extract back odds (first value before :)
-            const backOdds = parts[2].split(':')[0].split('*')[0] || "-";
-            // Extract lay odds (first value before :)
-            const layOdds = parts[3].split(':')[0].split('*')[0] || "-";
-            
-            return { back: backOdds, lay: layOdds };
-          };
+        // Get odds for all runners (up to 3)
+        const runner1 = match.runners.length > 0 ? extractOdds(match.runners[0]) : { back: "-", lay: "-" };
+        const runner2 = match.runners.length > 1 ? extractOdds(match.runners[1]) : { back: "-", lay: "-" };
+        const runner3 = match.runners.length > 2 ? extractOdds(match.runners[2]) : { back: "-", lay: "-" };
 
-          // Get odds for all runners
-          const runner1 = extractOdds(runnersData[0]);
-          const runner2 = extractOdds(runnersData[1]);
-          const runner3 = runnersData.length > 2 ? extractOdds(runnersData[2]) : { back: "-", lay: "-" };
+        // Format odds array to match the layout
+        odds = [
+          runner1.back || "-",    // Column 1 (blue)
+          runner1.lay || "-",     // Column 2 (pink)
+          runner2.back || "-",    // Column 3 (blue)
+          runner2.lay || "-",     // Column 4 (pink)
+          runner3.back || "-",    // Column 5 (blue)
+          runner3.lay || "-"      // Column 6 (pink)
+        ];
 
-          // Format odds array to match the screenshot layout
-          odds = [
-            runner1.back || "-",    // Column 1 (blue)
-            runner1.lay || "-",     // Column 2 (pink)
-            runner2.back || "-",    // Column 3 (blue)
-            runner2.lay || "-",     // Column 4 (pink)
-            runner3.back || "-",    // Column 5 (blue)
-            runner3.lay || "-"      // Column 6 (pink)
-          ];
-
-          return odds;
-        }
+        return odds;
       }
-    } catch (err) {
-      console.error('Error processing odds:', err);
+      
+      // Default empty odds (all "-")
+      return ["-", "-", "-", "-", "-", "-"];
+    } catch (error) {
+      console.error('Error extracting odds:', error);
+      return ["-", "-", "-", "-", "-", "-"];
     }
-    
-    return ["-", "-", "-", "-", "-", "-"];
   };
 
   const renderOddsButton = (value, color, index) => (
@@ -184,13 +185,13 @@ const CricketPage = () => {
     <div className="cricket-table">
       <div className="cricket-table-header-row">
         <div className="cricket-table-header-left">
-        <div className="cricket-header-title-main-yes">
-          <span className="cricket-header-icon">🏏</span>
-          <span className="cricket-header-title">CRICKET</span>
+          <div className="cricket-header-title-main-yes">
+            <span className="cricket-header-icon">🏏</span>
+            <span className="cricket-header-title">CRICKET</span>
           </div>
           <div className="cricket-main-header-live-virtual">
-          <button className="cricket-header-tab active">+ LIVE</button>
-          <button className="cricket-header-tab">+ VIRTUAL</button>
+            <button className="cricket-header-tab active">+ LIVE</button>
+            <button className="cricket-header-tab">+ VIRTUAL</button>
           </div>
         </div>
         <div className="cricket-table-header-right">
@@ -201,38 +202,42 @@ const CricketPage = () => {
           </div>
         </div>
       </div>
-      {(!matches?.data || matches.data.length === 0) ? (
+      {(!matches?.data?.inplay || matches.data.inplay.length === 0) ? (
         <div style={{ padding: 40, color: '#888' }}>No matches found.</div>
       ) : (
-        matches.data.map((match, idx) => {
-          const odds = getOddsFromMetadata(match);
+        matches.data.inplay.map((match, idx) => {
+          const odds = getOddsFromMatchData(match);
           const colors = ['blue', 'pink', 'blue', 'pink', 'blue', 'pink'];
           
           return (
             <div
               className="cricket-table-row"
-              key={match.event.id || idx}
+              key={match.matchId || idx}
               style={{ cursor: 'pointer' }}
-              onClick={() => navigate(`/sports-event-detail/${match.event.id}`)}
+              onClick={() => navigate(`/sports-event-detail/${match.event_id}`)}
             >
               <div className="cricket-table-left">
-              <div className="cricket-match-left-main-title-and-time">
-                <div className="cricket-title-section">
-                  <div className="cricket-match-title">{match.event.name}</div>
-                  <div className="cricket-match-subtitle">({match.competition.name})</div>
-                </div>
-                <div className="cricket-match-status-row">
-                  <span className="cricket-match-status">{match.catalogue.inPlay ? 'LIVE' : ""}</span>
-                  <div className="cricket-match-date">
-                    <div className="date">{formatDate(match.event.openDate).date}</div>
-                    <div className="time">{formatDate(match.event.openDate).time}</div>
+                <div className="cricket-match-left-main-title-and-time">
+                  <div className="cricket-title-section">
+                    <div className="cricket-match-title">{match.event_name}</div>
+                    <div className="cricket-match-subtitle">({match.league_name})</div>
                   </div>
+                  <div className="cricket-match-status-row">
+                    <span className="cricket-match-status">{match.inplay ? 'LIVE' : ""}</span>
+                    <div className="cricket-match-date">
+                      <div className="date">{formatDate(match.event_date).date}</div>
+                      <div className="time">{formatDate(match.event_date).time}</div>
+                    </div>
                   </div>
-                 
                 </div>
                 <div className="cricket-match-tv-f-b">
-                   <span className="cricket-match-icons">
-                    {["F", "TV", "BM", "P"].map((icon, i) => (
+                  <span className="cricket-match-icons">
+                    {[
+                      match.is_populer ? "F" : null,
+                      match.isMatchLive ? "TV" : null,
+                      match.has_bookmaker ? "BM" : null,
+                      match.has_premium_fancy ? "P" : null
+                    ].filter(Boolean).map((icon, i) => (
                       <span key={i} className="cricket-match-icon">{iconMap[icon] || icon}</span>
                     ))}
                   </span>
@@ -253,4 +258,4 @@ const CricketPage = () => {
   );
 };
 
-export default CricketPage; 
+export default CricketPage;

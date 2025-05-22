@@ -257,6 +257,21 @@ const EventDetailPage = () => {
     // Safely get runners with fallback to empty array
     const runners = (market.sl || market.runners || []);
     
+    // Get runner names from runnerName array if available
+    const runnerNames = market.runnerName || [];
+    const getRunnerName = (runner, index) => {
+      // First try to get name from runner object
+      if (runner.sln || runner.name || runner.RN) {
+        return runner.sln || runner.name || runner.RN;
+      }
+      // Then try to get from runnerName array
+      const matchingRunner = runnerNames.find(r => r.SID === runner.si || r.SID === runner.sid);
+      if (matchingRunner) {
+        return matchingRunner.RN;
+      }
+      return '';
+    };
+    
     return (
       <table className="odds-table">
         <thead>
@@ -270,7 +285,7 @@ const EventDetailPage = () => {
           {runners.map((runner, idx) => {
             return (
               <tr key={idx}>
-                <td>{runner.sln || runner.name || runner.RN || ''}</td>
+                <td>{getRunnerName(runner, idx)}</td>
                 {/* Back price */}
                 <td className="back"
                     onClick={() => {
@@ -714,71 +729,102 @@ const EventDetailPage = () => {
 
   // Render all market groups
   const renderMarketGroups = () => {
-    return Object.entries(markets).map(([marketType, marketList]) => {
-      if (!marketList || marketList.length === 0) return null;
+    // Create an array to hold all market sections in the desired order
+    const marketSections = [];
+    
+    // 1. First render BOOKMAKER if available
+    if (markets['BOOKMAKER'] && markets['BOOKMAKER'].length > 0) {
+      marketSections.push(
+        <div className="event-market-section" key="BOOKMAKER" style={{ marginBottom: 32 }}>
+          <div className="event-title-name-all">
+            <div className="event-market-title">{getMarketDisplayName('BOOKMAKER')}</div>
+          </div>
+          {markets['BOOKMAKER'].map((market) => (
+            <div className="event-market-row" key={market.mi || market.id} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+              {renderOddsTable(market)}
+              <div className="event-market-meta event-market-meta-right">
+                <div>Min: {market.mins || market.min_stake_limit || 100} | Max: {market.ms || market.max_bet || 100000}</div>
+                <div>Max Market: {market.mml || market.max_market_limit || 500000}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    // 2. Then render WINNING_ODDS if available
+    if (markets['WINNING_ODDS'] && markets['WINNING_ODDS'].length > 0) {
+      marketSections.push(
+        <div className="event-market-section" key="WINNING_ODDS" style={{ marginBottom: 32 }}>
+          <div className="event-title-name-all">
+            <div className="event-market-title">{getMarketDisplayName('WINNING_ODDS')}</div>
+          </div>
+          {markets['WINNING_ODDS'].map((market) => (
+            <div className="event-market-row" key={market.mi || market.id} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+              {renderOddsTable(market)}
+              <div className="event-market-meta event-market-meta-right">
+                <div>Min: {market.mins || market.min_stake_limit || 100} | Max: {market.ms || market.max_bet || 100000}</div>
+                <div>Max Market: {market.mml || market.max_market_limit || 500000}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    // 3. Then render all other markets in their original order
+    Object.entries(markets).forEach(([marketType, marketList]) => {
+      // Skip BOOKMAKER and WINNING_ODDS as they were already rendered
+      if (marketType === 'BOOKMAKER' || marketType === 'WINNING_ODDS' || !marketList || marketList.length === 0) {
+        return;
+      }
       
       if (marketType === 'SESSION_MARKETS') {
-        return (
+        marketSections.push(
           <div className="event-market-section" key={marketType}>
             {renderSessionMarkets(marketList)}
           </div>
         );
-      }
-      
-      if (marketType === 'FALL_OF_WICKET') {
-        return (
+      } else if (marketType === 'FALL_OF_WICKET') {
+        marketSections.push(
           <div className="event-market-section" key={marketType}>
             {renderFallOfWicketMarkets(marketList)}
           </div>
         );
-      }
-      
-      if (marketType === 'OVER_SESSION_MARKET') {
-        return (
+      } else if (marketType === 'OVER_SESSION_MARKET') {
+        marketSections.push(
           <div className="event-market-section" key={marketType}>
             {renderOverSessionMarkets(marketList)}
           </div>
         );
-      }
-      
-      if (marketType === 'ODD_EVEN_MARKETS') {
-        return (
+      } else if (marketType === 'ODD_EVEN_MARKETS') {
+        marketSections.push(
           <div className="event-market-section" key={marketType}>
             {renderOddEvenMarkets(marketList)}
           </div>
         );
-      }
-      
-      if (marketType === 'OTHER_MARKETS') {
-        return (
+      } else if (marketType === 'OTHER_MARKETS') {
+        marketSections.push(
           <div className="event-market-section" key={marketType}>
             {renderOtherMarkets(marketList)}
           </div>
         );
-      }
-      
-      if (marketType === 'TOTAL_ADVANCE') {
-        return (
+      } else if (marketType === 'TOTAL_ADVANCE') {
+        marketSections.push(
           <div className="event-market-section" key={marketType}>
             {renderTotalAdvanceMarkets(marketList)}
           </div>
         );
-      }
-      
-      // Default rendering for other groups
-      return (
-        <div className="event-market-section" key={marketType} style={{ marginBottom: 32 }}>
-          <div className="event-title-name-all">
-            <div className="event-market-title">{getMarketDisplayName(marketType)}</div>
-          </div>
-          {marketList.map((market) => (
-            <div className="event-market-row" key={market.mi || market.id} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-              {/* Render based on market type */}
-              {marketType === 'BOOKMAKER' && market.sl ? renderOddsTable(market) : 
-               marketType === 'WINNING_ODDS' ? (
-                renderOddsTable(market)
-               ) : (
-                isBallRunning(market) ? (
+      } else {
+        // Default rendering for other groups
+        marketSections.push(
+          <div className="event-market-section" key={marketType} style={{ marginBottom: 32 }}>
+            <div className="event-title-name-all">
+              <div className="event-market-title">{getMarketDisplayName(marketType)}</div>
+            </div>
+            {marketList.map((market) => (
+              <div className="event-market-row" key={market.mi || market.id} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+                {isBallRunning(market) ? (
                   renderBallRunning()
                 ) : (
                   <div className="odds-button-container odds-button-container-with-margin">
@@ -805,17 +851,20 @@ const EventDetailPage = () => {
                       <div className="odds-volume">{market.oy || 100}</div>
                     </div>
                   </div>
-                )
-               )}
-              <div className="event-market-meta event-market-meta-right">
-                <div>Min: {market.mins || market.min_stake_limit || 100} | Max: {market.ms || market.max_bet || 100000}</div>
-                <div>Max Market: {market.mml || market.max_market_limit || 500000}</div>
+                )}
+                <div className="event-market-meta event-market-meta-right">
+                  <div>Min: {market.mins || market.min_stake_limit || 100} | Max: {market.ms || market.max_bet || 100000}</div>
+                  <div>Max Market: {market.mml || market.max_market_limit || 500000}</div>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      );
+            ))}
+          </div>
+        );
+      }
     });
+    
+    // Return all market sections in the desired order
+    return marketSections;
   };
 
   return (
