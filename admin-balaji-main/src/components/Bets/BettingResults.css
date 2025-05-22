@@ -85,7 +85,7 @@
   border-collapse: collapse;
 }
 
-/* Set specific widths for columns to prevent overflow */
+/* Set specific widths for columns to prevent overflow - updated for removed User ID and Market ID columns */
 .table-container th:nth-child(1), 
 .table-container td:nth-child(1) {
   width: 40px;
@@ -93,67 +93,85 @@
   max-width: 40px;
 }
 
+/* Date column */
 .table-container th:nth-child(2), 
 .table-container td:nth-child(2) {
-  width: 80px;
-  min-width: 80px;
+  width: 90px;
+  min-width: 90px;
   white-space: nowrap;
 }
 
+/* Bet Details column - give it more space now */
 .table-container th:nth-child(3), 
 .table-container td:nth-child(3) {
-  width: 80px;
-  min-width: 80px;
-}
-
-.table-container th:nth-child(4), 
-.table-container td:nth-child(4) {
-  width: 80px;
-  min-width: 80px;
-}
-
-.table-container th:nth-child(5), 
-.table-container td:nth-child(5) {
-  width: 15%;
-  max-width: 200px;
+  width: 25%;
+  min-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Money columns - keep them narrow */
-.table-container th:nth-child(6), 
-.table-container td:nth-child(6),
-.table-container th:nth-child(7), 
-.table-container td:nth-child(7),
-.table-container th:nth-child(8), 
-.table-container td:nth-child(8) {
+/* Amount column */
+.table-container th:nth-child(4), 
+.table-container td:nth-child(4) {
   width: 80px;
   min-width: 80px;
   white-space: nowrap;
 }
 
-/* Bet type, runs, odd type */
-.table-container th:nth-child(9), 
-.table-container td:nth-child(9),
-.table-container th:nth-child(10), 
-.table-container td:nth-child(10),
-.table-container th:nth-child(11), 
-.table-container td:nth-child(11) {
+/* Potential Win column */
+.table-container th:nth-child(5), 
+.table-container td:nth-child(5) {
+  width: 80px;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+/* Potential Loss column */
+.table-container th:nth-child(6), 
+.table-container td:nth-child(6) {
+  width: 80px;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+/* Bet Type column */
+.table-container th:nth-child(7), 
+.table-container td:nth-child(7) {
   width: 60px;
   min-width: 60px;
   white-space: nowrap;
+  text-align: center;
 }
 
-/* Status */
-.table-container th:nth-child(12), 
-.table-container td:nth-child(12) {
+/* Runs column */
+.table-container th:nth-child(8), 
+.table-container td:nth-child(8) {
+  width: 60px;
+  min-width: 60px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Odd Type column */
+.table-container th:nth-child(9), 
+.table-container td:nth-child(9) {
+  width: 60px;
+  min-width: 60px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Status column */
+.table-container th:nth-child(10), 
+.table-container td:nth-child(10) {
   width: 80px;
   min-width: 80px;
+  text-align: center;
 }
 
-/* Actions */
-.table-container th:nth-child(13), 
-.table-container td:nth-child(13) {
+/* Actions column */
+.table-container th:nth-child(11), 
+.table-container td:nth-child(11) {
   width: 120px;
   min-width: 120px;
   white-space: nowrap;
