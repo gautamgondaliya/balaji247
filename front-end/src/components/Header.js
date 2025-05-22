@@ -198,7 +198,7 @@ const Header = () => {
             </div>
             <div style={{ position: 'relative' }} ref={userRef}>
               <div className="rb-header-user" onClick={() => setShowAccount(v => !v)} style={{ cursor: 'pointer' }}>
-                {userData?.name || userData?.user_id || 'User'} <span style={{fontSize: 18}}> <img src={account_icon} alt="" /> </span>
+                {userData?.user_id || userData?.name || 'User'} <span style={{fontSize: 18}}> <img src={account_icon} alt="" /> </span>
               </div>
               {showAccount && (
                 <AccountDropdown
