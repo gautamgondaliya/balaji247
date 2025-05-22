@@ -3,7 +3,8 @@ const { v4: uuidv4, v5: uuidv5 } = require('uuid');
 
 // Place a new bet (YES/NO or BACK/LAY)
 exports.placeBet = async (req, res) => {
-  const { user_id, amount, bet_type, odds, market_id, yes_odd, no_odd, market_name } = req.body;
+  const { user_id, amount, bet_type, odds, market_id, yes_odd, no_odd, bet_title, runs: bodyRuns, yes_run, no_run } = req.body;
+  const runs = bodyRuns !== undefined ? bodyRuns : (yes_run !== undefined ? yes_run : (no_run !== undefined ? no_run : '0'));
 
   if (!user_id || !amount || !bet_type || !market_id) {
     return res.status(400).json({
@@ -44,7 +45,6 @@ exports.placeBet = async (req, res) => {
       let potentialWin = 0;
       let potentialLoss = 0;
       let oddType = null;
-      let runs = null;
 
       // Calculate liability and potential win/loss based on bet type
       if (bet_type === 'yes') {
@@ -54,7 +54,6 @@ exports.placeBet = async (req, res) => {
           return res.status(400).json({ success: false, message: 'yes_odd is required and must be a number for YES bets.' });
         }
         oddType = yesOdd;
-        runs = req.body.yes_run;
         liability = yesOdd * (stake / 100);
         potentialWin = stake;
         potentialLoss = liability;
@@ -65,7 +64,6 @@ exports.placeBet = async (req, res) => {
           return res.status(400).json({ success: false, message: 'no_odd is required and must be a number for NO bets.' });
         }
         oddType = noOdd;
-        runs = req.body.no_run;
         liability = noOdd * (stake / 100);
         potentialWin = stake;
         potentialLoss = liability;
@@ -179,7 +177,7 @@ exports.placeBet = async (req, res) => {
           await trx.raw(
             `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, potentialWin, potentialLoss, market_name]
+            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, potentialWin, potentialLoss, bet_title]
           );
         } else {
           finalLiability = 0;
@@ -264,8 +262,8 @@ exports.placeBet = async (req, res) => {
           newExposure += finalLiability;
           await trx.raw(
             `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, potentialWin, potentialLoss, market_name]
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, potentialWin, potentialLoss, bet_title]
           );
         } else {
           finalLiability = 0;
@@ -279,8 +277,8 @@ exports.placeBet = async (req, res) => {
         newExposure = currentExposure + liability;
         await trx.raw(
           `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-          [betId, internalUserId, market_id, liability, bet_type, oddType, runs, potentialWin, potentialLoss, market_name]
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [betId, internalUserId, market_id, liability, bet_type, oddType, runs, potentialWin, potentialLoss, bet_title]
         );
       }
 
