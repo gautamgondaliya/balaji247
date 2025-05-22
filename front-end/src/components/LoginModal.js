@@ -66,7 +66,7 @@ const LoginModal = ({ open, onClose, onLogin }) => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post('https://backbalaji.dynexbet.com/api/auth/login', {
         user_id: userId,
         password: password
       });
@@ -101,7 +101,7 @@ const LoginModal = ({ open, onClose, onLogin }) => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      const response = await axios.post('https://backbalaji.dynexbet.com/api/auth/register', {
         name,
         phone,
         password: registerPassword

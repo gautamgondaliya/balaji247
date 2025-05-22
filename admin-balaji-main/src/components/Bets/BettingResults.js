@@ -22,7 +22,7 @@ import {
 import axios from 'axios';
 import DashboardLayout from '../Layout/DashboardLayout';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://backbalaji.dynexbet.com/api';
 
 const BettingResults = () => {
   const [pendingBets, setPendingBets] = useState([]);

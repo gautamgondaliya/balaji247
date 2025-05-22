@@ -834,9 +834,9 @@ const EventDetailPage = () => {
               {eventData.match.eventName}
             </span>
           </div>
-          <button className="event-detail-bets-btn" onClick={() => setBetsModalOpen(true)}>BETS(0)</button>
+          {/* <button className="event-detail-bets-btn" onClick={() => setBetsModalOpen(true)}>BETS(0)</button> */}
         </div>
-        <ul className="event-detail-tabs nav nav-tabs" role="tablist">
+       {/* <ul className="event-detail-tabs nav nav-tabs" role="tablist">
           {TABS.map(tab => (
             <li className="nav-item" role="presentation" key={tab.key}>
               <button
@@ -852,6 +852,7 @@ const EventDetailPage = () => {
             </li>
           ))}
         </ul>
+        */}
         <div className="event-detail-markets">
           {renderMarketGroups()}
         </div>

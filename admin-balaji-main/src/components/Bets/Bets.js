@@ -27,7 +27,7 @@ const Bets = () => {
     const fetchBets = async () => {
       try {
         const token = localStorage.getItem('adminToken');
-        const response = await axios.get('http://localhost:5000/api/betting/grouped/all', {
+        const response = await axios.get('https://backbalaji.dynexbet.com/api/betting/grouped/all', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

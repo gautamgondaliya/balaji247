@@ -27,6 +27,8 @@ function App() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Multi Market');
 
+
+// right click disable
   // useEffect(() => {
   //   const handleContextMenu = (e) => {
   //     e.preventDefault();

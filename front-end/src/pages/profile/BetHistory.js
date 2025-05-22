@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import './BetHistory.css';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://backbalaji.dynexbet.com/api';
 
 const BetHistory = () => {
   const [fromDate, setFromDate] = useState('');

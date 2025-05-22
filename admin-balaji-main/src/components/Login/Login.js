@@ -33,7 +33,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post('https://backbalaji.dynexbet.com/api/auth/login', formData);
       
       if (response.data.success) {
         // Save token and user data

@@ -13,7 +13,7 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: ["balaji.dynexbet.com", "https://balajiadmin.dynexbet.com/"], // Add your client domains here
+  origin: "*", // Add your client domains here
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true

@@ -27,7 +27,7 @@ const Users = () => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('adminToken');
-        const response = await axios.get('http://localhost:5000/api/users/', {
+        const response = await axios.get('https://backbalaji.dynexbet.com/api/users/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

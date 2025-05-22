@@ -5,7 +5,7 @@ import './AccountDropdown.css';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://backbalaji.dynexbet.com/api';
 
 // Setup axios with authentication interceptor
 const getAuthHeaders = () => {

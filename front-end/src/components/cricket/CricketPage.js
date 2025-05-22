@@ -48,7 +48,7 @@ const CricketPage = () => {
         // Only show loading on initial fetch
         if (!matches) setLoading(true);
         
-        const response = await axios.get(`http://localhost:5000/api/cricket`);
+        const response = await axios.get(`https://backbalaji.dynexbet.com/api/cricket`);
         setMatches(response.data);
         setLastFetchTime(now);
         setLoading(false);

@@ -385,6 +385,13 @@
 .rd-balance-badge {
     font-size: 13px;
 }
+.rb-header-logo-main-txt {
+    padding: 0;
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    text-transform: uppercase;
+}
 }
 
 @media(max-width:370px){
