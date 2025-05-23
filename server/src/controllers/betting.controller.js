@@ -106,7 +106,6 @@ exports.placeBet = async (req, res) => {
       }
 
       let offsettingDone = false;
-      let betId = uuidv4();
       let finalLiability = liability;
 
       // --- YES/NO Reverse Betting Logic ---
@@ -777,8 +776,9 @@ exports.placeAllBets = async (req, res) => {
 
   const trx = await db.transaction();
   try {
-    const { user_id, amount, bet_type, yes_odd, no_odd, market_id, bet_title, runs, yes_run, no_run, selection_name } = bet;
+    const { user_id, amount, bet_type, yes_odd, no_odd, market_id, bet_title, runs, yes_run, no_run, selection_name, odds } = bet;
     let odd = bet_type === 'yes' ? Number(yes_odd) : Number(no_odd);
+    const betId = uuidv4();
     // 1. Get internal user id
     const userIdResult = await trx.raw(
       `SELECT id FROM users WHERE user_id = ? LIMIT 1`,
@@ -821,7 +821,6 @@ exports.placeAllBets = async (req, res) => {
       // Insert bet into bets table
       const potentialWin = finalAmount * 2;
       const potentialLoss = finalAmount;
-      const betId = uuidv4();
       await trx.raw(
         `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection_name, potential_win, potential_loss, current_bet_name, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
@@ -832,55 +831,187 @@ exports.placeAllBets = async (req, res) => {
     }
     // If bet_type is back
     if (bet_type === 'back') {
-      const finalAmount = amount;
-      if (currentBalance < finalAmount) {
-        await trx.rollback();
-        return res.status(400).json({ success: false, message: 'Insufficient balance' });
+      const betOdds = parseFloat(odds);
+      let remainingAmount = parseFloat(amount);
+      let totalRefund = 0;
+      let offsetFromExposure = 0;
+      let deductedFromBalance = 0;
+
+      // Find all active opposite (LAY) bets for same user, market, selection
+      const oppositeBetsResult = await trx.raw(
+        `SELECT * FROM bets WHERE user_id = ? AND market_id = ? AND bet_type = 'lay' AND selection_name = ? AND amount > 0 ORDER BY created_at ASC`,
+        [internalUserId, market_id, selection_name]
+      );
+      const oppositeBets = oppositeBetsResult.rows;
+
+      // Try to offset with existing LAY bets
+      for (const oppBet of oppositeBets) {
+        if (remainingAmount <= 0) break;
+        const oppAmount = parseFloat(oppBet.amount);
+        const offsetAmount = Math.min(remainingAmount, oppAmount);
+        const newOppAmount = oppAmount - offsetAmount;
+
+        // Calculate refund liability for the offset amount
+        const refundLiability = offsetAmount;
+        totalRefund += refundLiability;
+
+        // Update/cancel the opposite bet
+        await trx.raw(
+          `UPDATE bets SET 
+            amount = ?, 
+            potential_win = potential_win - ?,
+            potential_loss = potential_loss - ?,
+            updated_at = CURRENT_TIMESTAMP, 
+            bet_type = CASE WHEN ? = 0 THEN 'cancelled' ELSE bet_type END 
+           WHERE id = ?`,
+          [newOppAmount, offsetAmount, offsetAmount, newOppAmount, oppBet.id]
+        );
+        if (newOppAmount === 0) {
+          await trx.raw(
+            `UPDATE bets SET bet_type = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+            [oppBet.id]
+          );
+        }
+        remainingAmount -= offsetAmount;
       }
-      currentBalance -= finalAmount;
-      currentExposure += finalAmount;
+
+      // Refund the liability for the offset amount
+      currentBalance += totalRefund;
+      currentExposure -= totalRefund;
+      offsetFromExposure = totalRefund;
+
+      // If there is any remaining amount, insert a new bet and update balance/exposure
+      if (remainingAmount > 0) {
+        const thisLiability = remainingAmount;
+        if (currentBalance < thisLiability) {
+          await trx.rollback();
+          return res.status(400).json({ success: false, message: 'Insufficient balance' });
+        }
+        currentBalance -= thisLiability;
+        currentExposure += thisLiability;
+        deductedFromBalance = thisLiability;
+
+        const potentialWin = ((remainingAmount / 100) * odds) + remainingAmount;
+        const potentialLoss = remainingAmount;
+        await trx.raw(
+          `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection_name, potential_win, potential_loss, current_bet_name, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [betId, internalUserId, market_id, remainingAmount, bet_type, odds, runs || yes_run || no_run, selection_name, potentialWin, potentialLoss, bet_title]
+        );
+      }
+
       // Update wallet
       await trx.raw(
         `UPDATE wallets SET current_balance = ?, current_exposure = ?, balance_updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
         [currentBalance, currentExposure, wallet.id]
       );
-      // Insert bet into bets table
-      const potentialWin = ((amount / 100) * odd) + amount;
-      const potentialLoss = amount;
-      const betId = uuidv4();
-      await trx.raw(
-        `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection_name, potential_win, potential_loss, current_bet_name, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-        [betId, internalUserId, market_id, amount, bet_type, odd, runs || yes_run || no_run, selection_name, potentialWin, potentialLoss, bet_title]
-      );
+
       await trx.commit();
-      return res.json({ success: true, message: 'Back bet placed successfully', data: { user_id, bet_id: betId, status: 'placed', balance: currentBalance, exposure: currentExposure } });
+      return res.json({ 
+        success: true, 
+        message: 'Back bet placed successfully', 
+        data: { 
+          user_id, 
+          bet_id: betId, 
+          status: 'placed', 
+          balance: currentBalance, 
+          exposure: currentExposure,
+          offsetFromExposure,
+          deductedFromBalance
+        } 
+      });
     }
     // If bet_type is lay
     else if (bet_type === 'lay') {
-      const finalAmount = amount;
-      if (currentBalance < finalAmount) {
-        await trx.rollback();
-        return res.status(400).json({ success: false, message: 'Insufficient balance' });
+      const betOdds = parseFloat(odds);
+      let remainingAmount = parseFloat(amount);
+      let totalRefund = 0;
+      let offsetFromExposure = 0;
+      let deductedFromBalance = 0;
+
+      // Find all active opposite (BACK) bets for same user, market, selection
+      const oppositeBetsResult = await trx.raw(
+        `SELECT * FROM bets WHERE user_id = ? AND market_id = ? AND bet_type = 'back' AND selection_name = ? AND amount > 0 ORDER BY created_at ASC`,
+        [internalUserId, market_id, selection_name]
+      );
+      const oppositeBets = oppositeBetsResult.rows;
+
+      // Try to offset with existing BACK bets
+      for (const oppBet of oppositeBets) {
+        if (remainingAmount <= 0) break;
+        const oppAmount = parseFloat(oppBet.amount);
+        const offsetAmount = Math.min(remainingAmount, oppAmount);
+        const newOppAmount = oppAmount - offsetAmount;
+
+        // Calculate refund liability for the offset amount
+        const refundLiability = offsetAmount;
+        totalRefund += refundLiability;
+
+        // Update/cancel the opposite bet
+        await trx.raw(
+          `UPDATE bets SET 
+            amount = ?, 
+            potential_win = potential_win - ?,
+            potential_loss = potential_loss - ?,
+            updated_at = CURRENT_TIMESTAMP, 
+            bet_type = CASE WHEN ? = 0 THEN 'cancelled' ELSE bet_type END 
+           WHERE id = ?`,
+          [newOppAmount, offsetAmount, offsetAmount, newOppAmount, oppBet.id]
+        );
+        if (newOppAmount === 0) {
+          await trx.raw(
+            `UPDATE bets SET bet_type = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+            [oppBet.id]
+          );
+        }
+        remainingAmount -= offsetAmount;
       }
-      currentBalance -= finalAmount;
-      currentExposure += finalAmount;
+
+      // Refund the liability for the offset amount
+      currentBalance += totalRefund;
+      currentExposure -= totalRefund;
+      offsetFromExposure = totalRefund;
+
+      // If there is any remaining amount, insert a new bet and update balance/exposure
+      if (remainingAmount > 0) {
+        const thisLiability = remainingAmount;
+        if (currentBalance < thisLiability) {
+          await trx.rollback();
+          return res.status(400).json({ success: false, message: 'Insufficient balance' });
+        }
+        currentBalance -= thisLiability;
+        currentExposure += thisLiability;
+        deductedFromBalance = thisLiability;
+
+        const potentialWin = ((remainingAmount / 100) * odds) + remainingAmount;
+        const potentialLoss = remainingAmount;
+        await trx.raw(
+          `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection_name, potential_win, potential_loss, current_bet_name, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [betId, internalUserId, market_id, remainingAmount, bet_type, odds, runs || yes_run || no_run, selection_name, potentialWin, potentialLoss, bet_title]
+        );
+      }
+
       // Update wallet
       await trx.raw(
         `UPDATE wallets SET current_balance = ?, current_exposure = ?, balance_updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
         [currentBalance, currentExposure, wallet.id]
       );
-      // Insert bet into bets table
-      const potentialWin = ((amount / 100) * odd) + amount;
-      const potentialLoss = amount;
-      const betId = uuidv4();
-      await trx.raw(
-        `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection_name, potential_win, potential_loss, current_bet_name, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-        [betId, internalUserId, market_id, amount, bet_type, odd, runs || yes_run || no_run, selection_name, potentialWin, potentialLoss, bet_title]
-      );
+
       await trx.commit();
-      return res.json({ success: true, message: 'Lay bet placed successfully', data: { user_id, bet_id: betId, status: 'placed', balance: currentBalance, exposure: currentExposure } });
+      return res.json({ 
+        success: true, 
+        message: 'Lay bet placed successfully', 
+        data: { 
+          user_id, 
+          bet_id: betId, 
+          status: 'placed', 
+          balance: currentBalance, 
+          exposure: currentExposure,
+          offsetFromExposure,
+          deductedFromBalance
+        } 
+      });
     }
     // 3. Check for opposite bet on same run
     let oppositeType = bet_type === 'yes' ? 'no' : 'yes';
@@ -924,7 +1055,6 @@ exports.placeAllBets = async (req, res) => {
     // 5. Insert bet into bets table
     const potentialWin = ((amount / 100) * odd) + amount;
     const potentialLoss = amount;
-    const betId = uuidv4();
     await trx.raw(
       `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection_name, potential_win, potential_loss, current_bet_name, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
