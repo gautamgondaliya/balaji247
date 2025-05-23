@@ -181,8 +181,60 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         no_odd: selectedBet.market.on || 0,
         bet_title: betTitle, // Add bet title to payload
         market_name: selectedBet.market.mn || '', // Add market name
-        selection_name: selectionName || selectedBet.odd.type.toUpperCase() // Include selection name for all market types
+        selection_name: selectionName || selectedBet.odd.type.toUpperCase(), // Include selection name for all market types
+        eventName: selectedBet.bookmakerOddData?.en || 
+                  selectedBet.market?.bookmakerOddData?.en || 
+                  selectedBet.match?.eventName ||
+                  selectedBet.match?.fancyOddData?.en ||
+                  selectedBet.fancyOddData?.en ||
+                  selectedBet.eventName || 
+                  selectedBet.event?.eventName || 
+                  selectedBet.market?.en || 
+                  selectedBet.market?.event?.eventName || 
+                  '' // Prioritize bookmakerOddData.en for event name
       };
+
+      // Add both team names if available
+      // From bookmakerOddData
+      if (selectedBet.bookmakerOddData?.ml && selectedBet.bookmakerOddData.ml.length > 0) {
+        const bookmaker = selectedBet.bookmakerOddData.ml.find(item => item.id === Number(selectedBet.market.id));
+        if (bookmaker && bookmaker.sl && bookmaker.sl.length >= 2) {
+          betData.team1 = bookmaker.sl[0].sln || '';
+          betData.team2 = bookmaker.sl[1].sln || '';
+          // Set full match name if not already set
+          if (!betData.eventName) {
+            betData.eventName = `${betData.team1} v ${betData.team2}`;
+          }
+        }
+      }
+      // From matchOddData
+      else if (selectedBet.matchOddData && selectedBet.matchOddData.length > 0) {
+        const matchOdd = selectedBet.matchOddData.find(item => item.marketName === "Match Odds" || item.marketName === "Who Will Win The Match?");
+        if (matchOdd && matchOdd.runnerName && matchOdd.runnerName.length >= 2) {
+          betData.team1 = matchOdd.runnerName[0].RN || '';
+          betData.team2 = matchOdd.runnerName[1].RN || '';
+          // Set full match name if not already set
+          if (!betData.eventName) {
+            betData.eventName = `${betData.team1} v ${betData.team2}`;
+          }
+        }
+      }
+      // Extract from event name if available but team names aren't
+      else if (betData.eventName && betData.eventName.includes(' v ')) {
+        const teams = betData.eventName.split(' v ');
+        if (teams.length >= 2) {
+          betData.team1 = teams[0].trim();
+          betData.team2 = teams[1].trim();
+        }
+      }
+      
+      // Always ensure eventName has the format "Team1 v Team2" if we have both teams
+      if (betData.team1 && betData.team2 && (!betData.eventName || !betData.eventName.includes(betData.team1))) {
+        betData.eventName = `${betData.team1} v ${betData.team2}`;
+      }
+
+      // Log for debugging
+      console.log('Placing bet with data:', betData);
 
       // Send request to place bet with auth headers
       const response = await axios.post(`${BASE_URL}/betting/place`, betData, getAuthHeaders());
