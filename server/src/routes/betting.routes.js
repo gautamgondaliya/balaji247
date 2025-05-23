@@ -4,7 +4,7 @@ const bettingController = require('../controllers/betting.controller');
 const { authenticateToken } = require('../middleware/auth');
 
 // Place a new bet
-router.post('/place', authenticateToken, bettingController.placeBet);
+router.post('/place', authenticateToken, bettingController.placeAllBets);
 
 // Get bet details
 router.get('/:bet_id', authenticateToken, bettingController.getBetDetails);

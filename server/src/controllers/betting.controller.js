@@ -767,4 +767,99 @@ exports.getAllBetsGroupedByUser = async (req, res) => {
       error: error.message
     });
   }
+};
+
+// Place multiple bets at once
+exports.placeAllBets = async (req, res) => {
+  const bet = req.body;
+  const db = require('../db/knex');
+  const { v4: uuidv4 } = require('uuid');
+
+  const trx = await db.transaction();
+  try {
+    const { user_id, amount, bet_type, yes_odd, no_odd, market_id, bet_title, runs, yes_run, no_run } = bet;
+    let odd = bet_type === 'yes' ? Number(yes_odd) : Number(no_odd);
+    // 1. Get internal user id
+    const userIdResult = await trx.raw(
+      `SELECT id FROM users WHERE user_id = ? LIMIT 1`,
+      [user_id]
+    );
+    if (!userIdResult.rows.length) {
+      await trx.rollback();
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    const internalUserId = userIdResult.rows[0].id;
+
+    // 2. Get wallet
+    const walletResult = await trx.raw(
+      `SELECT * FROM wallets WHERE user_id = ? FOR UPDATE`,
+      [internalUserId]
+    );
+    if (!walletResult.rows.length) {
+      await trx.rollback();
+      return res.status(404).json({ success: false, message: 'Wallet not found' });
+    }
+    const wallet = walletResult.rows[0];
+    let currentBalance = parseFloat(wallet.current_balance);
+    let currentExposure = parseFloat(wallet.current_exposure);
+
+    // 3. Check for opposite bet on same run
+    let oppositeType = bet_type === 'yes' ? 'no' : 'yes';
+    let runToCheck = bet_type === 'yes' ? yes_run : no_run;
+    const oppositeBetResult = await trx.raw(
+      `SELECT * FROM bets WHERE user_id = ? AND market_id = ? AND bet_type = ? AND runs = ? LIMIT 1`,
+      [internalUserId, market_id, oppositeType, runToCheck]
+    );
+
+    const finalAmount = (amount / 100) * odd;
+    let offsetFromExposure = 0;
+    let deductedFromBalance = 0;
+    if (oppositeBetResult.rows.length > 0) {
+      // Offsetting: use exposure first, then balance
+      offsetFromExposure = Math.min(finalAmount, currentExposure);
+      deductedFromBalance = finalAmount - offsetFromExposure;
+      if (currentBalance < deductedFromBalance) {
+        await trx.rollback();
+        return res.status(400).json({ success: false, message: 'Insufficient balance for offsetting' });
+      }
+      currentExposure -= offsetFromExposure;
+      currentBalance -= deductedFromBalance;
+      currentExposure += deductedFromBalance;
+    } else {
+      // No offsetting: deduct all from balance, add to exposure
+      if (currentBalance < finalAmount) {
+        await trx.rollback();
+        return res.status(400).json({ success: false, message: 'Insufficient balance' });
+      }
+      currentBalance -= finalAmount;
+      currentExposure += finalAmount;
+    }
+
+    // 4. Update wallet in DB
+    await trx.raw(
+      `UPDATE wallets SET current_balance = ?, current_exposure = ?, balance_updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+      [currentBalance, currentExposure, wallet.id]
+    );
+
+    // 5. Insert bet into bets table
+    const potentialWin = finalAmount * 2;
+    const potentialLoss = finalAmount;
+    const betId = uuidv4();
+    await trx.raw(
+      `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      [betId, internalUserId, market_id, amount, bet_type, odd, runs || yes_run || no_run, potentialWin, potentialLoss, bet_title]
+    );
+
+    await trx.commit();
+    return res.json({ success: true, message: 'Bet placed successfully', data: { user_id, bet_id: betId, status: 'placed', balance: currentBalance, exposure: currentExposure, offsetFromExposure, deductedFromBalance } });
+  } catch (error) {
+    await trx.rollback();
+    console.error('placeAllBets error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to place bet.',
+      error: error.message
+    });
+  }
 }; 
