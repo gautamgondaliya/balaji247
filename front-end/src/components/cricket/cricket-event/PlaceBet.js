@@ -143,8 +143,29 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         return;
       }
 
-      // Construct bet title
-      const betTitle = `${selectedBet.market.mn} - ${selectedBet.odd.type.toUpperCase()}: ${selectedBet.odd.price}`;
+      let betTitle;
+      // Get the selection name, checking multiple possible sources
+      let selectionName = selectedBet.odd.sln || selectedBet.odd.name || selectedBet.odd.selection || selectedBet.odd.runnerName;
+      
+      // If runner information is available in the market data
+      if (!selectionName && selectedBet.market.runnerName && selectedBet.odd.sid) {
+        // Find the runner name that matches the selected sid
+        const matchingRunner = selectedBet.market.runnerName.find(
+          runner => runner.SID === selectedBet.odd.sid
+        );
+        if (matchingRunner) {
+          selectionName = matchingRunner.RN;
+        }
+      }
+      
+      if (selectionName) {
+        // Format: "Market Name Selection Name - BET_TYPE: odds"
+        // Example: "Who Will Win The Match? Ireland - BACK: 2.9"
+        betTitle = `${selectedBet.market.mn} ${selectionName} - ${selectedBet.odd.type.toUpperCase()}: ${selectedBet.odd.price}`;
+      } else {
+        // Fallback to original format if no selection name is available
+        betTitle = `${selectedBet.market.mn} - ${selectedBet.odd.type.toUpperCase()}: ${selectedBet.odd.price}`;
+      }
 
       // Prepare bet data
       const betData = {
@@ -160,7 +181,7 @@ const PlaceBet = ({ selectedBet, selectedMarketIndex, setSelectedBet, setStake, 
         no_odd: selectedBet.market.on || 0,
         bet_title: betTitle, // Add bet title to payload
         market_name: selectedBet.market.mn || '', // Add market name
-        selection_name: selectedBet.odd.type.toUpperCase() // Add selection name
+        selection_name: selectionName || selectedBet.odd.type.toUpperCase() // Include selection name for all market types
       };
 
       // Send request to place bet with auth headers
