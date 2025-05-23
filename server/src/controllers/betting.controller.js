@@ -129,7 +129,7 @@ exports.placeBet = async (req, res) => {
           const offsetAmount = Math.min(remainingAmount, oppAmount);
           const newOppAmount = oppAmount - offsetAmount;
 
-          // Calculate liability for the offset amount
+          // Calculate liability for the offset amount (dynamic for YES/NO odds)
           const oppOdd = parseFloat(oppBet.odd_type);
           const refundLiability = oppOdd * (offsetAmount / 100);
           totalRefund += refundLiability;
@@ -161,24 +161,22 @@ exports.placeBet = async (req, res) => {
           remainingAmount -= offsetAmount;
         }
 
-        // Adjust potential win/loss for the new bet
-        potentialWin -= totalPotentialWin;
-        potentialLoss -= totalPotentialLoss;
-
-        // Refund the liability for the offset amount
-        finalLiability = totalRefund;
-        currentBalance += finalLiability;
-        currentExposure -= finalLiability;
+        // Refund the exposure for the offset amount
+        currentBalance += totalRefund;
+        currentExposure -= totalRefund;
 
         // If there is any remaining amount, insert a new bet and update balance/exposure
         if (remainingAmount > 0) {
           finalLiability = oddType * (remainingAmount / 100);
           currentBalance -= finalLiability;
           currentExposure += finalLiability;
+          // Recalculate potential win/loss for the unmatched portion
+          let thisPotentialWin = remainingAmount + oddType * (remainingAmount / 100);
+          let thisPotentialLoss = remainingAmount;
           await trx.raw(
             `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, potentialWin, potentialLoss, bet_title]
+            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, thisPotentialWin, thisPotentialLoss, bet_title]
           );
         } else {
           finalLiability = 0;
