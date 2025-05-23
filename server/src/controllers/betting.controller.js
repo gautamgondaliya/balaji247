@@ -803,6 +803,33 @@ exports.placeAllBets = async (req, res) => {
     let currentBalance = parseFloat(wallet.current_balance);
     let currentExposure = parseFloat(wallet.current_exposure);
 
+    // If yes_run and no_run are different, do not offset, just deduct from balance and add to exposure
+    if (yes_run !== no_run) {
+      const finalAmount = (amount / 100) * odd;
+      if (currentBalance < finalAmount) {
+        await trx.rollback();
+        return res.status(400).json({ success: false, message: 'Insufficient balance' });
+      }
+      currentBalance -= finalAmount;
+      currentExposure += finalAmount;
+      // Update wallet
+      await trx.raw(
+        `UPDATE wallets SET current_balance = ?, current_exposure = ?, balance_updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+        [currentBalance, currentExposure, wallet.id]
+      );
+      // Insert bet into bets table
+      const potentialWin = finalAmount * 2;
+      const potentialLoss = finalAmount;
+      const betId = uuidv4();
+      await trx.raw(
+        `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        [betId, internalUserId, market_id, amount, bet_type, odd, runs || yes_run || no_run, potentialWin, potentialLoss, bet_title]
+      );
+      await trx.commit();
+      return res.json({ success: true, message: 'Bet placed successfully', data: { user_id, bet_id: betId, status: 'placed', balance: currentBalance, exposure: currentExposure } });
+    }
+
     // 3. Check for opposite bet on same run
     let oppositeType = bet_type === 'yes' ? 'no' : 'yes';
     let runToCheck = bet_type === 'yes' ? yes_run : no_run;
