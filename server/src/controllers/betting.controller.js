@@ -112,7 +112,7 @@ exports.placeBet = async (req, res) => {
       // --- YES/NO Reverse Betting Logic ---
       if ((bet_type === 'yes' || bet_type === 'no') && runs !== undefined && runs !== null) {
         const oppositeType = bet_type === 'yes' ? 'no' : 'yes';
-        // Find all active opposite bets for same user, market, runs
+        // Only attempt offsetting if there are opposite bets with the SAME run
         const oppositeBetsResult = await trx.raw(
           `SELECT * FROM bets WHERE user_id = ? AND market_id = ? AND runs = ? AND bet_type = ? AND amount > 0 ORDER BY created_at ASC`,
           [internalUserId, market_id, runs, oppositeType]
@@ -123,65 +123,80 @@ exports.placeBet = async (req, res) => {
         let totalPotentialWin = 0;
         let totalPotentialLoss = 0;
 
-        for (const oppBet of oppositeBets) {
-          if (remainingAmount <= 0) break;
-          const oppAmount = parseFloat(oppBet.amount);
-          const offsetAmount = Math.min(remainingAmount, oppAmount);
-          const newOppAmount = oppAmount - offsetAmount;
+        if (oppositeBets.length > 0) {
+          for (const oppBet of oppositeBets) {
+            if (remainingAmount <= 0) break;
+            const oppAmount = parseFloat(oppBet.amount);
+            const offsetAmount = Math.min(remainingAmount, oppAmount);
+            const newOppAmount = oppAmount - offsetAmount;
 
-          // Calculate liability for the offset amount (dynamic for YES/NO odds)
-          const oppOdd = parseFloat(oppBet.odd_type);
-          const refundLiability = oppOdd * (offsetAmount / 100);
-          totalRefund += refundLiability;
+            // Calculate liability for the offset amount (dynamic for YES/NO odds)
+            const oppOdd = parseFloat(oppBet.odd_type);
+            const refundLiability = oppOdd * (offsetAmount / 100);
+            totalRefund += refundLiability;
 
-          // Proportionally reduce potential win/loss
-          const offsetRatio = offsetAmount / oppAmount;
-          const offsetPotentialWin = parseFloat(oppBet.potential_win) * offsetRatio;
-          const offsetPotentialLoss = parseFloat(oppBet.potential_loss) * offsetRatio;
-          totalPotentialWin += offsetPotentialWin;
-          totalPotentialLoss += offsetPotentialLoss;
+            // Proportionally reduce potential win/loss
+            const offsetRatio = offsetAmount / oppAmount;
+            const offsetPotentialWin = parseFloat(oppBet.potential_win) * offsetRatio;
+            const offsetPotentialLoss = parseFloat(oppBet.potential_loss) * offsetRatio;
+            totalPotentialWin += offsetPotentialWin;
+            totalPotentialLoss += offsetPotentialLoss;
 
-          // Update/cancel the opposite bet
-          await trx.raw(
-            `UPDATE bets SET 
-              amount = ?, 
-              potential_win = potential_win - ?,
-              potential_loss = potential_loss - ?,
-              updated_at = CURRENT_TIMESTAMP, 
-              bet_type = CASE WHEN ? = 0 THEN 'cancelled' ELSE bet_type END 
-             WHERE id = ?`,
-            [newOppAmount, offsetPotentialWin, offsetPotentialLoss, newOppAmount, oppBet.id]
-          );
-          if (newOppAmount === 0) {
+            // Update/cancel the opposite bet
             await trx.raw(
-              `UPDATE bets SET bet_type = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-              [oppBet.id]
+              `UPDATE bets SET 
+                amount = ?, 
+                potential_win = potential_win - ?,
+                potential_loss = potential_loss - ?,
+                updated_at = CURRENT_TIMESTAMP, 
+                bet_type = CASE WHEN ? = 0 THEN 'cancelled' ELSE bet_type END 
+               WHERE id = ?`,
+              [newOppAmount, offsetPotentialWin, offsetPotentialLoss, newOppAmount, oppBet.id]
             );
+            if (newOppAmount === 0) {
+              await trx.raw(
+                `UPDATE bets SET bet_type = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+                [oppBet.id]
+              );
+            }
+            remainingAmount -= offsetAmount;
           }
-          remainingAmount -= offsetAmount;
-        }
 
-        // Refund the exposure for the offset amount
-        currentBalance += totalRefund;
-        currentExposure -= totalRefund;
+          // Refund the exposure for the offset amount
+          currentBalance += totalRefund;
+          currentExposure -= totalRefund;
 
-        // If there is any remaining amount, insert a new bet and update balance/exposure
-        if (remainingAmount > 0) {
-          finalLiability = oddType * (remainingAmount / 100);
+          // If there is any remaining amount, insert a new bet and update balance/exposure
+          if (remainingAmount > 0) {
+            finalLiability = oddType * (remainingAmount / 100);
+            currentBalance -= finalLiability;
+            currentExposure += finalLiability;
+            // Recalculate potential win/loss for the unmatched portion
+            let thisPotentialWin = remainingAmount + oddType * (remainingAmount / 100);
+            let thisPotentialLoss = remainingAmount;
+            await trx.raw(
+              `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+              [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, thisPotentialWin, thisPotentialLoss, bet_title]
+            );
+          } else {
+            finalLiability = 0;
+          }
+          offsettingDone = true;
+        } else {
+          // No opposite bets with the same run: just deduct from balance and add to exposure
+          finalLiability = oddType * (stake / 100);
           currentBalance -= finalLiability;
           currentExposure += finalLiability;
-          // Recalculate potential win/loss for the unmatched portion
-          let thisPotentialWin = remainingAmount + oddType * (remainingAmount / 100);
-          let thisPotentialLoss = remainingAmount;
+          let thisPotentialWin = stake + oddType * (stake / 100);
+          let thisPotentialLoss = stake;
           await trx.raw(
             `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, thisPotentialWin, thisPotentialLoss, bet_title]
+            [betId, internalUserId, market_id, stake, bet_type, oddType, runs, thisPotentialWin, thisPotentialLoss, bet_title]
           );
-        } else {
-          finalLiability = 0;
+          offsettingDone = true;
         }
-        offsettingDone = true;
       }
 
       // --- BACK/LAY Reverse Betting Logic ---
