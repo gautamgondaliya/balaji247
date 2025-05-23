@@ -54,9 +54,10 @@ exports.placeBet = async (req, res) => {
           return res.status(400).json({ success: false, message: 'yes_odd is required and must be a number for YES bets.' });
         }
         oddType = yesOdd;
-        liability = yesOdd * (stake / 100);
-        potentialWin = stake;
-        potentialLoss = liability;
+        const finalAmount = (stake / 100) * yesOdd;
+        liability = finalAmount;
+        potentialWin = finalAmount * 2;
+        potentialLoss = finalAmount;
       } else if (bet_type === 'no') {
         const noOdd = Number(no_odd);
         if (!noOdd || isNaN(noOdd)) {
@@ -64,9 +65,10 @@ exports.placeBet = async (req, res) => {
           return res.status(400).json({ success: false, message: 'no_odd is required and must be a number for NO bets.' });
         }
         oddType = noOdd;
-        liability = noOdd * (stake / 100);
-        potentialWin = stake;
-        potentialLoss = liability;
+        const finalAmount = (stake / 100) * noOdd;
+        liability = finalAmount;
+        potentialWin = finalAmount * 2;
+        potentialLoss = finalAmount;
       } else if (bet_type === 'back') {
         const betOdds = parseFloat(odds);
         if (!betOdds || isNaN(betOdds)) {
@@ -75,8 +77,8 @@ exports.placeBet = async (req, res) => {
         }
         oddType = betOdds;
         liability = stake;
-        potentialWin = stake * (betOdds - 1);
-        potentialLoss = liability;
+        potentialWin = stake + betOdds * (stake / 100);
+        potentialLoss = stake;
       } else if (bet_type === 'lay') {
         const betOdds = parseFloat(odds);
         if (!betOdds || isNaN(betOdds)) {
@@ -84,9 +86,9 @@ exports.placeBet = async (req, res) => {
           return res.status(400).json({ success: false, message: 'odds is required and must be a number for LAY bets.' });
         }
         oddType = betOdds;
-        liability = stake * (betOdds - 1);
-        potentialWin = stake;
-        potentialLoss = liability;
+        liability = (betOdds - 1) * stake;
+        potentialWin = stake + betOdds * (stake / 100);
+        potentialLoss = stake;
       } else {
         await trx.rollback();
         return res.status(400).json({ success: false, message: 'Invalid bet type. Must be yes, no, back, or lay.' });
@@ -106,8 +108,6 @@ exports.placeBet = async (req, res) => {
       let offsettingDone = false;
       let betId = uuidv4();
       let finalLiability = liability;
-      let newBalance = currentBalance;
-      let newExposure = currentExposure;
 
       // --- YES/NO Reverse Betting Logic ---
       if ((bet_type === 'yes' || bet_type === 'no') && runs !== undefined && runs !== null) {
@@ -166,14 +166,15 @@ exports.placeBet = async (req, res) => {
         potentialLoss -= totalPotentialLoss;
 
         // Refund the liability for the offset amount
-        newBalance = currentBalance + totalRefund;
-        newExposure = currentExposure - totalRefund;
+        finalLiability = totalRefund;
+        currentBalance += finalLiability;
+        currentExposure -= finalLiability;
 
         // If there is any remaining amount, insert a new bet and update balance/exposure
         if (remainingAmount > 0) {
           finalLiability = oddType * (remainingAmount / 100);
-          newBalance -= finalLiability;
-          newExposure += finalLiability;
+          currentBalance -= finalLiability;
+          currentExposure += finalLiability;
           await trx.raw(
             `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
@@ -210,7 +211,7 @@ exports.placeBet = async (req, res) => {
           // Calculate refund liability for the offset amount
           let refundLiability = 0;
           if (oppBet.bet_type === 'lay') {
-            refundLiability = offsetAmount * (parseFloat(oppBet.odd_type) - 1);
+            refundLiability = (parseFloat(oppBet.odd_type) - 1) * offsetAmount;
           } else {
             refundLiability = offsetAmount;
           }
@@ -248,22 +249,33 @@ exports.placeBet = async (req, res) => {
         potentialLoss -= totalPotentialLoss;
 
         // Refund the liability for the offset amount
-        newBalance = currentBalance + totalRefund;
-        newExposure = currentExposure - totalRefund;
+        finalLiability = totalRefund;
+        currentBalance += finalLiability;
+        currentExposure -= finalLiability;
 
         // If there is any remaining amount, insert a new bet and update balance/exposure
         if (remainingAmount > 0) {
+          let thisLiability = 0;
+          let thisPotentialWin = 0;
+          let thisPotentialLoss = 0;
           if (bet_type === 'lay') {
-            finalLiability = remainingAmount * (betOdds - 1);
+            thisLiability = (betOdds - 1) * remainingAmount;
+            thisPotentialWin = remainingAmount + betOdds * (remainingAmount / 100);
+            thisPotentialLoss = remainingAmount;
+            currentBalance -= thisLiability;
+            currentExposure += thisLiability;
           } else {
-            finalLiability = remainingAmount;
+            thisLiability = remainingAmount;
+            thisPotentialWin = remainingAmount + betOdds * (remainingAmount / 100);
+            thisPotentialLoss = remainingAmount;
+            currentBalance -= thisLiability;
+            currentExposure += thisLiability;
           }
-          newBalance -= finalLiability;
-          newExposure += finalLiability;
+          finalLiability = thisLiability;
           await trx.raw(
             `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, potentialWin, potentialLoss, bet_title]
+            [betId, internalUserId, market_id, remainingAmount, bet_type, oddType, runs, thisPotentialWin, thisPotentialLoss, bet_title]
           );
         } else {
           finalLiability = 0;
@@ -273,32 +285,95 @@ exports.placeBet = async (req, res) => {
 
       if (!offsettingDone) {
         // No offsetting, proceed as usual
-        newBalance = currentBalance - liability;
-        newExposure = currentExposure + liability;
+        if (bet_type === 'lay') {
+          currentBalance = currentBalance - liability;
+          currentExposure = currentExposure + liability;
+        } else if (bet_type === 'back') {
+          currentBalance = currentBalance - stake;
+          currentExposure = currentExposure + stake;
+        } else {
+          currentBalance = currentBalance - liability;
+          currentExposure = currentExposure + liability;
+        }
         await trx.raw(
           `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, potential_win, potential_loss, current_bet_name, created_at, updated_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-          [betId, internalUserId, market_id, liability, bet_type, oddType, runs, potentialWin, potentialLoss, bet_title]
+          [betId, internalUserId, market_id, stake, bet_type, oddType, runs, potentialWin, potentialLoss, bet_title]
         );
+      }
+
+      // After offsetting logic for YES/NO bets
+      // Calculate how to fund the remaining liability (finalLiability)
+      if (finalLiability > 0) {
+        if (currentExposure >= finalLiability) {
+          // Use exposure only, no wallet deduction
+          currentExposure = currentExposure - finalLiability + finalLiability; // net no change
+          // currentBalance remains unchanged
+        } else {
+          // Use all exposure, and the rest from wallet
+          const neededFromWallet = finalLiability - currentExposure;
+          if (currentBalance < neededFromWallet) {
+            await trx.rollback();
+            return res.status(400).json({
+              success: false,
+              message: 'Insufficient balance after using exposure.',
+              required_balance: neededFromWallet,
+              current_balance: currentBalance
+            });
+          }
+          currentBalance = currentBalance - neededFromWallet;
+          currentExposure = 0 + finalLiability;
+        }
       }
 
       // Update wallet
       await trx.raw(
         `UPDATE wallets SET current_balance = ?, current_exposure = ?, balance_updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-        [newBalance, newExposure, wallet.id]
+        [currentBalance, currentExposure, wallet.id]
       );
 
       await trx.commit();
+
+      // Calculate profit/loss for each selection in this market for this user
+      let selectionProfitLoss = {};
+      if (bet_type === 'back' || bet_type === 'lay') {
+        // Get all bets for this user and market
+        const userBetsResult = await db.raw(
+          `SELECT * FROM bets WHERE user_id = ? AND market_id = ? AND bet_type IN ('back', 'lay')`,
+          [internalUserId, market_id]
+        );
+        const userBets = userBetsResult.rows;
+        // Find all unique selections (runs field or selection_name if available)
+        const selections = [...new Set(userBets.map(bet => bet.runs))];
+        for (const sel of selections) {
+          // All bets on this selection
+          const winBets = userBets.filter(bet => bet.runs === sel);
+          // All bets on other selections
+          const loseBets = userBets.filter(bet => bet.runs !== sel);
+          // Sum potential win for this selection
+          const winAmount = winBets.reduce((sum, bet) => sum + parseFloat(bet.potential_win || 0), 0);
+          // Sum all stakes on other selections
+          const loseAmount = loseBets.reduce((sum, bet) => sum + parseFloat(bet.amount || 0), 0);
+          // Sum all stakes on this selection (potential loss)
+          const totalStake = winBets.reduce((sum, bet) => sum + parseFloat(bet.amount || 0), 0);
+          selectionProfitLoss[sel] = {
+            profit: winAmount - loseAmount,
+            loss: totalStake
+          };
+        }
+      }
+
       return res.status(201).json({
         success: true,
         message: 'Bet placed successfully',
         data: {
-          new_balance: newBalance,
-          new_exposure: newExposure,
+          new_balance: currentBalance,
+          new_exposure: currentExposure,
           liability: finalLiability,
           potential_win: potentialWin,
           potential_loss: potentialLoss,
-          bet_id: betId
+          bet_id: betId,
+          selection_profit_loss: selectionProfitLoss
         }
       });
     } catch (error) {
