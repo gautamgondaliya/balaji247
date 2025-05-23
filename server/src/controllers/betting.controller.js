@@ -823,6 +823,7 @@ exports.placeAllBets = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Insufficient balance for offsetting' });
       }
       currentExposure -= offsetFromExposure;
+      currentBalance += offsetFromExposure; // Return offset amount to balance
       currentBalance -= deductedFromBalance;
       currentExposure += deductedFromBalance;
     } else {
