@@ -804,9 +804,22 @@ exports.placeAllBets = async (req, res) => {
     let currentExposure = parseFloat(wallet.current_exposure);
 
     // If yes_run and no_run are different, do not offset, just deduct from balance and add to exposure
-    // if (yes_run !== no_run) {
     if (yes_run !== no_run && (bet_type === 'yes' || bet_type === 'no')) {
-      const finalAmount = (amount / 100) * odd;
+      let finalAmount, potentialWin, potentialLoss;
+      
+      // Check if odds is in decimal format (like 1.98 or 2.02)
+      if (!Number.isInteger(odd)) {
+        // Decimal odds case
+        finalAmount = amount;
+        potentialWin = amount * odd;
+        potentialLoss = amount;
+      } else {
+        // Previous case
+        finalAmount = (amount / 100) * odd;
+        potentialWin = finalAmount * 2;
+        potentialLoss = finalAmount;
+      }
+
       if (currentBalance < finalAmount) {
         await trx.rollback();
         return res.status(400).json({ success: false, message: 'Insufficient balance' });
@@ -819,8 +832,7 @@ exports.placeAllBets = async (req, res) => {
         [currentBalance, currentExposure, wallet.id]
       );
       // Insert bet into bets table
-      const potentialWin = finalAmount * 2;
-      const potentialLoss = finalAmount;
+      const betId = uuidv4();
       await trx.raw(
         `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection_name, potential_win, potential_loss, current_bet_name, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
