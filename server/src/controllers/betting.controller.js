@@ -1065,8 +1065,9 @@ exports.placeAllBets = async (req, res) => {
     );
 
     // 5. Insert bet into bets table
-    const potentialWin = ((amount / 100) * odd) + amount;
-    const potentialLoss = amount;
+    // const potentialWin = ((amount / 100) * odd) + amount;
+    const potentialWin = finalAmount*2;
+    const potentialLoss = finalAmount;
     await trx.raw(
       `INSERT INTO bets (id, user_id, market_id, amount, bet_type, odd_type, runs, selection_name, potential_win, potential_loss, current_bet_name, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
